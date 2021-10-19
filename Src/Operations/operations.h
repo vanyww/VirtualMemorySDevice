@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VirtualMemorySDevice/core.h"
+#include "../../Inc/VirtualMemorySDevice/core.h"
 
 VirtualMemorySDeviceStatus VirtualMemoryTryReadChunk(__SDEVICE_HANDLE(VirtualMemory) *,
                                                      void *,

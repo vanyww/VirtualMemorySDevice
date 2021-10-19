@@ -8,9 +8,13 @@ VirtualMemorySDeviceStatus VirtualMemoryTryReadChunk(__SDEVICE_HANDLE(VirtualMem
                                                      VirtualMemorySDeviceFunctionParameters *parameters)
 {
    if(chunk->ReadFunction != NULL)
+   {
       return chunk->ReadFunction(handle, parameters, data, chunk->Context);
+   }
    else
+   {
       memset(data, __VIRTUAL_MEMORY_SDEVICE_MOCK_VALUE, parameters->BytesCount);
+   }
 
    return VIRTUAL_MEMORY_SDEVICE_STATUS_OK;
 }

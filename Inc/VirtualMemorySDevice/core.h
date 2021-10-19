@@ -1,7 +1,13 @@
 #pragma once
 
 #include "SDeviceCore/interface.h"
-#include "VirtualMemorySDevice/config.h"
+
+#include <stdint.h>
+
+#define __VIRTUAL_MEMORY_SDEVICE_BASE_TYPE_MAX_VALUE UINT16_MAX
+#define __VIRTUAL_MEMORY_SDEVICE_MOCK_VALUE 0U
+
+typedef uint16_t VirtualMemorySDeviceBaseType;
 
 typedef enum
 {
@@ -37,7 +43,7 @@ typedef struct { } __SDEVICE_DYNAMIC_DATA(VirtualMemory);
 
 __SDEVICE_HANDLE_DEFINITION(VirtualMemory);
 
-__SDEVICE_INITIALIZE_INTERNALS_DECLARATION(VirtualMemory,);
+__SDEVICE_INITIALIZE_HANDLE_DECLARATION(VirtualMemory,);
 
 /* Satty's interface end */
 
