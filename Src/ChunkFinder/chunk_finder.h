@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VirtualMemorySDevice/core.h"
+#include "../../Inc/VirtualMemorySDevice/core.h"
 
 typedef struct
 {

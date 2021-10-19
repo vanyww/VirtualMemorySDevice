@@ -1,20 +1,26 @@
-#include "VirtualMemorySDevice/core.h"
+#include "../Inc/VirtualMemorySDevice/core.h"
 
 #include <stddef.h>
 
-__SDEVICE_INITIALIZE_INTERNALS_DECLARATION(VirtualMemory, handle)
+__SDEVICE_INITIALIZE_HANDLE_DECLARATION(VirtualMemory, handle)
 {
-   SDeviceAssert(handle->Constant->Chunks != NULL);
+   SDeviceAssert(handle->IsInitialized == false);
+   SDeviceAssert(handle->Constant.Chunks != NULL);
 
 #ifdef __SDEVICE_ASSERT
-   VirtualMemorySDeviceBaseType address = handle->Constant->AddressingStart - 1;
+   VirtualMemorySDeviceBaseType address = handle->Constant.AddressingStart;
 
-   for(size_t i = 0; i < handle->Constant->ChunksCount; i++)
+   for(size_t i = 0; i < handle->Constant.ChunksCount; i++)
    {
-      SDeviceAssert(__VIRTUAL_MEMORY_SDEVICE_BASE_TYPE_MAX_VALUE - address <= handle->Constant->Chunks[i].BytesCount);
-      address += handle->Constant->Chunks[i].BytesCount;
+      VirtualMemorySDeviceBaseType chunkBytesCount = handle->Constant.Chunks[i].BytesCount;
+
+      if(chunkBytesCount == 0)
+         continue;
+
+      SDeviceAssert(__VIRTUAL_MEMORY_SDEVICE_BASE_TYPE_MAX_VALUE - address >= chunkBytesCount - 1);
+      address += chunkBytesCount;
    }
 #endif
 
-   return true;
+   handle->IsInitialized = true;
 }

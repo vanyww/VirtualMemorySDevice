@@ -9,7 +9,7 @@ typedef VirtualMemorySDeviceStatus (*VirtualMemoryOperation)(__SDEVICE_HANDLE(Vi
 
 static VirtualMemorySDeviceStatus VirtualMemoryTryPerformOperation(__SDEVICE_HANDLE(VirtualMemory) *handle,
                                                                    VirtualMemoryOperation operation,
-                                                                   const void *argument,
+                                                                   const void *context,
                                                                    void *data,
                                                                    VirtualMemorySDeviceBaseType address,
                                                                    VirtualMemorySDeviceBaseType length)
@@ -21,7 +21,7 @@ static VirtualMemorySDeviceStatus VirtualMemoryTryPerformOperation(__SDEVICE_HAN
    VirtualMemorySDeviceFunctionParameters operationParameters =
    {
       .Offset = memory.Offset,
-      .CallContext = argument,
+      .CallContext = context,
       .BytesCount = __MIN(memory.Chunk->BytesCount - memory.Offset, length)
    };
 
@@ -45,28 +45,28 @@ static VirtualMemorySDeviceStatus VirtualMemoryTryPerformOperation(__SDEVICE_HAN
 }
 
 VirtualMemorySDeviceStatus VirtualMemorySDeviceRead(__SDEVICE_HANDLE(VirtualMemory) *handle,
-                                                    const void *argument,
+                                                    const void *context,
                                                     void *data,
                                                     VirtualMemorySDeviceBaseType address,
                                                     VirtualMemorySDeviceBaseType length)
 {
    return VirtualMemoryTryPerformOperation(handle,
                                            VirtualMemoryTryReadChunk,
-                                           argument,
+                                           context,
                                            data,
                                            address,
                                            length);
 }
 
 VirtualMemorySDeviceStatus VirtualMemorySDeviceWrite(__SDEVICE_HANDLE(VirtualMemory) *handle,
-                                                     const void *argument,
+                                                     const void *context,
                                                      const void *data,
                                                      VirtualMemorySDeviceBaseType address,
                                                      VirtualMemorySDeviceBaseType length)
 {
    return VirtualMemoryTryPerformOperation(handle,
                                            VirtualMemoryTryWriteChunk,
-                                           argument,
+                                           context,
                                            (void *)data,
                                            address,
                                            length);
