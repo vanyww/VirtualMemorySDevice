@@ -4,6 +4,7 @@
 
 __SDEVICE_INITIALIZE_HANDLE_DECLARATION(VirtualMemory, handle)
 {
+   SDeviceAssert(handle != NULL);
    SDeviceAssert(handle->IsInitialized == false);
    SDeviceAssert(handle->Constant.Chunks != NULL);
 
