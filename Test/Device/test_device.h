@@ -2,4 +2,4 @@
 
 #include "VirtualMemorySDevice/core.h"
 
-__SDEVICE_HANDLE(VirtualMemory) CreateVirtualMemorySDevice(void);
+void CreateVirtualMemorySDevice(__SDEVICE_HANDLE(VirtualMemory) *);

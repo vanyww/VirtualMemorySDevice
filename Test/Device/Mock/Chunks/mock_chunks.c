@@ -49,3 +49,11 @@ VirtualMemorySDeviceChunk MockChunks[] =
 };
 
 const size_t MockChunksCount = sizeof(MockChunks) / sizeof(VirtualMemorySDeviceChunk);
+
+const __SDEVICE_CONSTANT_DATA(VirtualMemory) ConstandData =
+{
+   .Chunks = MockChunks,
+   .ChunksCount = MockChunksCount,
+   .AddressingStart = 0x00,
+   .Context = NULL
+};
