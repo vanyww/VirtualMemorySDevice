@@ -51,7 +51,7 @@ VirtualMemorySDeviceStatus VirtualMemorySDeviceRead(__SDEVICE_HANDLE(VirtualMemo
                                                     VirtualMemorySDeviceBaseType length)
 {
    SDeviceAssert(handle != NULL);
-   SDeviceAssert(handle->IsInitialized == false);
+   SDeviceAssert(handle->IsInitialized == true);
    SDeviceAssert(data != NULL);
 
    return VirtualMemoryTryPerformOperation(handle,
@@ -69,7 +69,7 @@ VirtualMemorySDeviceStatus VirtualMemorySDeviceWrite(__SDEVICE_HANDLE(VirtualMem
                                                      VirtualMemorySDeviceBaseType length)
 {
    SDeviceAssert(handle != NULL);
-   SDeviceAssert(handle->IsInitialized == false);
+   SDeviceAssert(handle->IsInitialized == true);
    SDeviceAssert(data != NULL);
 
    return VirtualMemoryTryPerformOperation(handle,
