@@ -7,7 +7,8 @@
 
 bool TestWriteNormal(void)
 {
-   __SDEVICE_HANDLE(VirtualMemory) handle = CreateVirtualMemorySDevice();
+   __SDEVICE_HANDLE(VirtualMemory) handle;
+   CreateVirtualMemorySDevice(&handle);
 
    uint8_t expectedWrittenData[] = { 0x11, 0x22, 0x33, 0x44 };
    uint8_t dataToWrite[] = { 0x11, 0x22, 0x33, 0x44 };
@@ -25,7 +26,8 @@ bool TestWriteNormal(void)
 
 bool TestWriteEmpty(void)
 {
-   __SDEVICE_HANDLE(VirtualMemory) handle = CreateVirtualMemorySDevice();
+   __SDEVICE_HANDLE(VirtualMemory) handle;
+   CreateVirtualMemorySDevice(&handle);
 
    uint8_t expectedWrittenData[] = { 0x11, 0x22, 0x00, 0x00 };
    uint8_t dataToWrite[] = { 0x11, 0x22, 0x33, 0x44 };

@@ -7,7 +7,8 @@
 
 bool TestReadNormal(void)
 {
-   __SDEVICE_HANDLE(VirtualMemory) handle = CreateVirtualMemorySDevice();
+   __SDEVICE_HANDLE(VirtualMemory) handle;
+   CreateVirtualMemorySDevice(&handle);
 
    uint8_t expectedReadData[] = { 0x11, 0x22, 0x33, 0x44 };
    MockChunksBuffers[0][0] = expectedReadData[0];
@@ -29,7 +30,8 @@ bool TestReadNormal(void)
 
 bool TestReadEmpty(void)
 {
-   __SDEVICE_HANDLE(VirtualMemory) handle = CreateVirtualMemorySDevice();
+   __SDEVICE_HANDLE(VirtualMemory) handle;
+   CreateVirtualMemorySDevice(&handle);
 
    uint8_t expectedReadData[] = { 0x11, 0x22, 0x00, 0x00 };
    MockChunksBuffers[1][0] = expectedReadData[0];
