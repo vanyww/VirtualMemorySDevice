@@ -2,6 +2,8 @@
 #include "Operations/operations.h"
 #include "ChunkFinder/chunk_finder.h"
 
+#include <stddef.h>
+
 typedef VirtualMemorySDeviceStatus (*VirtualMemoryOperation)(__SDEVICE_HANDLE(VirtualMemory) *,
                                                              void *,
                                                              const VirtualMemorySDeviceChunk *,
