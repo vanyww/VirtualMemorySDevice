@@ -2,8 +2,6 @@
 
 #include "SDeviceCore/interface.h"
 
-#include <stdint.h>
-
 #define __VIRTUAL_MEMORY_SDEVICE_BASE_TYPE_MAX_VALUE UINT16_MAX
 #define __VIRTUAL_MEMORY_SDEVICE_MOCK_VALUE 0U
 
@@ -13,7 +11,8 @@ typedef enum
 {
    VIRTUAL_MEMORY_SDEVICE_STATUS_OK,
    VIRTUAL_MEMORY_SDEVICE_STATUS_DATA_ERROR,
-   VIRTUAL_MEMORY_SDEVICE_STATUS_DEVICE_ERROR
+   VIRTUAL_MEMORY_SDEVICE_STATUS_DEVICE_ERROR,
+   VIRTUAL_MEMORY_SDEVICE_STATUS_ADDRESS_ERROR
 } VirtualMemorySDeviceStatus;
 
 typedef struct
@@ -39,7 +38,10 @@ typedef struct
 
 typedef struct { } __SDEVICE_SETTINGS_DATA(VirtualMemory);
 
-typedef struct { } __SDEVICE_DYNAMIC_DATA(VirtualMemory);
+typedef struct
+{
+   VirtualMemorySDeviceBaseType AddressingEnd;
+} __SDEVICE_DYNAMIC_DATA(VirtualMemory);
 
 __SDEVICE_HANDLE_DEFINITION(VirtualMemory);
 
