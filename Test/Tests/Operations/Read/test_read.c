@@ -2,6 +2,7 @@
 #include "../../../Device/test_device.h"
 #include "../../../Device/Mock/Chunks/mock_chunks.h"
 #include "../../../Device/Mock/Assertation/mock_assert.h"
+#include "../../../Device/Mock/RuntimeError/mock_handle_runtime_error.h"
 
 #include <memory.h>
 
@@ -20,6 +21,9 @@ bool TestReadNormal(void)
    VirtualMemorySDeviceRead(&handle, NULL, readData, 0, sizeof(readData));
 
    if(WasAssertFailed() == true)
+      return false;
+
+   if(WasRuntimeErrorRaised() == true)
       return false;
 
    if(memcmp(expectedReadData, readData, sizeof(readData)) != 0)
@@ -43,6 +47,9 @@ bool TestReadEmpty(void)
    VirtualMemorySDeviceRead(&handle, NULL, readData, __MOCK_CHUNK_SIZE, sizeof(readData));
 
    if(WasAssertFailed() == true)
+      return false;
+
+   if(WasRuntimeErrorRaised() == true)
       return false;
 
    if(memcmp(expectedReadData, readData, sizeof(readData)) != 0)

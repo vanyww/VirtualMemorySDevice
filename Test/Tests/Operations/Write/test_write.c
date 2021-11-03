@@ -2,6 +2,7 @@
 #include "../../../Device/test_device.h"
 #include "../../../Device/Mock/Chunks/mock_chunks.h"
 #include "../../../Device/Mock/Assertation/mock_assert.h"
+#include "../../../Device/Mock/RuntimeError/mock_handle_runtime_error.h"
 
 #include <memory.h>
 
@@ -16,6 +17,9 @@ bool TestWriteNormal(void)
    VirtualMemorySDeviceWrite(&handle, NULL, dataToWrite, 0, sizeof(dataToWrite));
 
    if(WasAssertFailed() == true)
+      return false;
+
+   if(WasRuntimeErrorRaised() == true)
       return false;
 
    if(memcmp(expectedWrittenData, MockChunksBuffers[0], sizeof(dataToWrite)) != 0)
@@ -35,6 +39,9 @@ bool TestWriteEmpty(void)
    VirtualMemorySDeviceWrite(&handle, NULL, dataToWrite, __MOCK_CHUNK_SIZE, sizeof(dataToWrite));
 
    if(WasAssertFailed() == true)
+      return false;
+
+   if(WasRuntimeErrorRaised() == true)
       return false;
 
    if(memcmp(expectedWrittenData, MockChunksBuffers[1], sizeof(dataToWrite)) != 0)
