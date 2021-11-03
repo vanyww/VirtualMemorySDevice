@@ -4,7 +4,7 @@ bool VirtualMemoryTryFindChunk(__SDEVICE_HANDLE(VirtualMemory) *handle,
                                VirtualMemorySDeviceBaseType address,
                                VirtualMemoryPointer *pointer)
 {
-   if(address < handle->Constant->AddressingStart)
+   if(address < handle->Constant->AddressingStart || address > handle->Dynamic.AddressingEnd)
       return false;
 
    VirtualMemorySDeviceBaseType chunkLastAddress = -1;
