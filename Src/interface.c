@@ -19,7 +19,7 @@ static VirtualMemorySDeviceStatus VirtualMemoryTryPerformOperation(__SDEVICE_HAN
    VirtualMemoryPointer memory;
    if(VirtualMemoryTryFindChunk(handle, address, &memory) != true)
    {
-      SDeviceRuntimeErrorRaised(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_ADDRESS_ERROR);
+      SDeviceRuntimeErrorRaised(handle, VIRTUAL_MEMORY_SDEVICE_RUNTIME_WRONG_ADDRESS_ERROR);
       return VIRTUAL_MEMORY_SDEVICE_STATUS_ADDRESS_ERROR;
    }
 
@@ -36,7 +36,7 @@ static VirtualMemorySDeviceStatus VirtualMemoryTryPerformOperation(__SDEVICE_HAN
 
       if(operationStatus != VIRTUAL_MEMORY_SDEVICE_STATUS_OK)
       {
-         SDeviceRuntimeErrorRaised(handle, operationStatus);
+         SDeviceRuntimeErrorRaised(handle, VIRTUAL_MEMORY_SDEVICE_RUNTIME_CHUNK_FUNCTION_ERROR);
          return operationStatus;
       }
 
