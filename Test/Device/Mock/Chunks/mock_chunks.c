@@ -6,20 +6,20 @@ typedef struct { size_t ChunkIndex; } MockChunkContext;
 
 uint8_t MockChunksBuffers[__MOCK_CHUNKS_COUNT][__MOCK_CHUNK_SIZE];
 
-static VirtualMemorySDeviceStatus MockChunkRead(__SDEVICE_HANDLE(VirtualMemory) *handle,
-                                                const VirtualMemorySDeviceFunctionParameters *parameters,
-                                                void *data,
-                                                const void *context)
+static VirtualMemorySDeviceChunkFunctionStatus MockChunkRead(__SDEVICE_HANDLE(VirtualMemory) *handle,
+                                                             const VirtualMemorySDeviceFunctionParameters *parameters,
+                                                             void *data,
+                                                             const void *context)
 {
    size_t chunkIndex = ((MockChunkContext *)context)->ChunkIndex;
    memcpy(data, &MockChunksBuffers[chunkIndex][parameters->Offset], parameters->BytesCount);
    return VIRTUAL_MEMORY_SDEVICE_STATUS_OK;
 }
 
-static VirtualMemorySDeviceStatus MockChunkWrite(__SDEVICE_HANDLE(VirtualMemory) *handle,
-                                                 const VirtualMemorySDeviceFunctionParameters *parameters,
-                                                 const void *data,
-                                                 const void *context)
+static VirtualMemorySDeviceChunkFunctionStatus MockChunkWrite(__SDEVICE_HANDLE(VirtualMemory) *handle,
+                                                              const VirtualMemorySDeviceFunctionParameters *parameters,
+                                                              const void *data,
+                                                              const void *context)
 {
    size_t chunkIndex = ((MockChunkContext *)context)->ChunkIndex;
    memcpy(&MockChunksBuffers[chunkIndex][parameters->Offset], data, parameters->BytesCount);

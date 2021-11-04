@@ -9,7 +9,7 @@ VirtualMemorySDeviceStatus VirtualMemoryTryReadChunk(__SDEVICE_HANDLE(VirtualMem
 {
    if(chunk->ReadFunction != NULL)
    {
-      return chunk->ReadFunction(handle, parameters, data, chunk->Context);
+      return (VirtualMemorySDeviceStatus)chunk->ReadFunction(handle, parameters, data, chunk->Context);
    }
    else
    {
@@ -25,7 +25,7 @@ VirtualMemorySDeviceStatus VirtualMemoryTryWriteChunk(__SDEVICE_HANDLE(VirtualMe
                                                       VirtualMemorySDeviceFunctionParameters *parameters)
 {
    if(chunk->WriteFunction != NULL)
-      return chunk->WriteFunction(handle, parameters, data, chunk->Context);
+      return (VirtualMemorySDeviceStatus)chunk->WriteFunction(handle, parameters, data, chunk->Context);
 
    return VIRTUAL_MEMORY_SDEVICE_STATUS_OK;
 }
