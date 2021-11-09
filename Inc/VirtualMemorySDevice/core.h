@@ -22,12 +22,6 @@ typedef enum
    VIRTUAL_MEMORY_SDEVICE_CHUNK_FUNCTION_STATUS_DEVICE_ERROR = VIRTUAL_MEMORY_SDEVICE_STATUS_DEVICE_ERROR
 } VirtualMemorySDeviceChunkFunctionStatus;
 
-typedef enum
-{
-   VIRTUAL_MEMORY_SDEVICE_RUNTIME_WRONG_ADDRESS_ERROR  = 0x01,
-   VIRTUAL_MEMORY_SDEVICE_RUNTIME_CHUNK_FUNCTION_ERROR = 0x02
-} VirtualMemorySDeviceRuntimeError;
-
 typedef struct
 {
    const void *CallContext;
@@ -59,6 +53,12 @@ typedef struct
 __SDEVICE_HANDLE_DEFINITION(VirtualMemory);
 
 __SDEVICE_INITIALIZE_HANDLE_DECLARATION(VirtualMemory,);
+
+typedef enum
+{
+   VIRTUAL_MEMORY_SDEVICE_RUNTIME_WRONG_ADDRESS_ERROR  = 0x01,
+   VIRTUAL_MEMORY_SDEVICE_RUNTIME_CHUNK_FUNCTION_ERROR = 0x02
+} VirtualMemorySDeviceRuntimeError;
 
 /* Satty's interface end */
 
