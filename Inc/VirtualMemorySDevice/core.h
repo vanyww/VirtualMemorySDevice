@@ -37,7 +37,6 @@ __SDEVICE_HANDLE_FORWARD_DECLARATION(VirtualMemory);
 
 typedef struct
 {
-   void *Context;
    const VirtualMemorySDeviceChunk *Chunks;
    VirtualMemorySDeviceBaseType ChunksCount;
    VirtualMemorySDeviceBaseType AddressingStart;
