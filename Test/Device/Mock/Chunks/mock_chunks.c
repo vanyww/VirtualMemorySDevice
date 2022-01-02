@@ -6,49 +6,49 @@ typedef struct { size_t ChunkIndex; } MockChunkContext;
 
 uint8_t MockChunksBuffers[__MOCK_CHUNKS_COUNT][__MOCK_CHUNK_SIZE];
 
-static VirtualMemorySDeviceChunkFunctionStatus MockChunkRead(__SDEVICE_HANDLE(VirtualMemory) *handle,
-                                                             const VirtualMemorySDeviceFunctionParameters *parameters,
-                                                             void *data,
-                                                             const void *context)
+static VirtualMemoryChunkStatus MockChunkRead(__SDEVICE_HANDLE(VirtualMemory) *handle,
+                                              const VirtualMemoryChunkReadParameters *parameters,
+                                              const void *chunkContext,
+                                              const void *callContext)
 {
-   size_t chunkIndex = ((MockChunkContext *)context)->ChunkIndex;
-   memcpy(data, &MockChunksBuffers[chunkIndex][parameters->Offset], parameters->BytesCount);
-   return VIRTUAL_MEMORY_SDEVICE_STATUS_OK;
+   size_t chunkIndex = ((MockChunkContext *)chunkContext)->ChunkIndex;
+   memcpy(parameters->Data, &MockChunksBuffers[chunkIndex][parameters->Offset], parameters->Size);
+   return VIRTUAL_MEMORY_CHUNK_STATUS_OK;
 }
 
-static VirtualMemorySDeviceChunkFunctionStatus MockChunkWrite(__SDEVICE_HANDLE(VirtualMemory) *handle,
-                                                              const VirtualMemorySDeviceFunctionParameters *parameters,
-                                                              const void *data,
-                                                              const void *context)
+static VirtualMemoryChunkStatus MockChunkWrite(__SDEVICE_HANDLE(VirtualMemory) *handle,
+                                               const VirtualMemoryChunkWriteParameters *parameters,
+                                               const void *chunkContext,
+                                               const void *callContext)
 {
-   size_t chunkIndex = ((MockChunkContext *)context)->ChunkIndex;
-   memcpy(&MockChunksBuffers[chunkIndex][parameters->Offset], data, parameters->BytesCount);
-   return VIRTUAL_MEMORY_SDEVICE_STATUS_OK;
+   size_t chunkIndex = ((MockChunkContext *)chunkContext)->ChunkIndex;
+   memcpy(&MockChunksBuffers[chunkIndex][parameters->Offset], parameters->Data, parameters->Size);
+   return VIRTUAL_MEMORY_CHUNK_STATUS_OK;
 }
 
-VirtualMemorySDeviceChunk MockChunks[] =
+VirtualMemoryChunk MockChunks[] =
 {
    {
-      .ReadFunction = MockChunkRead,
-      .WriteFunction = MockChunkWrite,
+      .Read = MockChunkRead,
+      .Write = MockChunkWrite,
       .Context = &(MockChunkContext){ 0 },
       .BytesCount = __MOCK_CHUNK_SIZE
    },
    {
-      .ReadFunction = MockChunkRead,
-      .WriteFunction = MockChunkWrite,
+      .Read = MockChunkRead,
+      .Write = MockChunkWrite,
       .Context = &(MockChunkContext){ 1 },
       .BytesCount = __MOCK_CHUNK_SIZE
    },
    {
-      .ReadFunction = NULL,
-      .WriteFunction = NULL,
-      .Context = &(MockChunkContext){ 3 },
+      .Read = NULL,
+      .Write = NULL,
+      .Context = &(MockChunkContext){ 2 },
       .BytesCount = __MOCK_CHUNK_SIZE
    },
 };
 
-const size_t MockChunksCount = sizeof(MockChunks) / sizeof(VirtualMemorySDeviceChunk);
+const size_t MockChunksCount = sizeof(MockChunks) / sizeof(VirtualMemoryChunk);
 
 const __SDEVICE_CONSTANT_DATA(VirtualMemory) ConstandData =
 {

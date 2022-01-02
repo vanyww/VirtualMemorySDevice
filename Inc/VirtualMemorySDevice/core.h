@@ -2,34 +2,47 @@
 
 #include "SDeviceCore/interface.h"
 
-#define __VIRTUAL_MEMORY_SDEVICE_BASE_TYPE_MAX_VALUE UINT16_MAX
-#define __VIRTUAL_MEMORY_SDEVICE_MOCK_VALUE 0U
+#define __VIRTUAL_MEMORY_BASE_TYPE_MAX_VALUE UINT16_MAX
+#define __VIRTUAL_MEMORY_MOCK_VALUE 0U
 
-typedef uint16_t VirtualMemorySDeviceBaseType;
-
-typedef enum
-{
-   VIRTUAL_MEMORY_SDEVICE_STATUS_OK,
-   VIRTUAL_MEMORY_SDEVICE_STATUS_DATA_ERROR,
-   VIRTUAL_MEMORY_SDEVICE_STATUS_DEVICE_ERROR,
-   VIRTUAL_MEMORY_SDEVICE_STATUS_ADDRESS_ERROR
-} VirtualMemorySDeviceStatus;
+typedef uint16_t VirtualMemoryBaseType;
 
 typedef enum
 {
-   VIRTUAL_MEMORY_SDEVICE_CHUNK_FUNCTION_STATUS_OK = VIRTUAL_MEMORY_SDEVICE_STATUS_OK,
-   VIRTUAL_MEMORY_SDEVICE_CHUNK_FUNCTION_STATUS_DATA_ERROR = VIRTUAL_MEMORY_SDEVICE_STATUS_DATA_ERROR,
-   VIRTUAL_MEMORY_SDEVICE_CHUNK_FUNCTION_STATUS_DEVICE_ERROR = VIRTUAL_MEMORY_SDEVICE_STATUS_DEVICE_ERROR
-} VirtualMemorySDeviceChunkFunctionStatus;
+   VIRTUAL_MEMORY_STATUS_OK,
+   VIRTUAL_MEMORY_STATUS_DATA_ERROR,
+   VIRTUAL_MEMORY_STATUS_DEVICE_ERROR,
+   VIRTUAL_MEMORY_STATUS_ADDRESS_ERROR
+} VirtualMemoryStatus;
+
+typedef enum
+{
+   VIRTUAL_MEMORY_CHUNK_STATUS_OK           = VIRTUAL_MEMORY_STATUS_OK,
+   VIRTUAL_MEMORY_CHUNK_STATUS_DATA_ERROR   = VIRTUAL_MEMORY_STATUS_DATA_ERROR,
+   VIRTUAL_MEMORY_CHUNK_STATUS_DEVICE_ERROR = VIRTUAL_MEMORY_STATUS_DEVICE_ERROR
+} VirtualMemoryChunkStatus;
 
 typedef struct
 {
-   const void *CallContext;
-   VirtualMemorySDeviceBaseType Offset;
-   VirtualMemorySDeviceBaseType BytesCount;
-} VirtualMemorySDeviceFunctionParameters;
+   void *Data;
+   VirtualMemoryBaseType Size;
+   VirtualMemoryBaseType Offset;
+} VirtualMemoryChunkReadParameters;
 
-typedef struct VirtualMemorySDeviceChunk VirtualMemorySDeviceChunk;
+typedef struct
+{
+   const void *Data;
+   VirtualMemoryBaseType Size;
+   VirtualMemoryBaseType Offset;
+} VirtualMemoryChunkWriteParameters;
+
+typedef struct
+{
+   VirtualMemoryBaseType Address;
+   VirtualMemoryBaseType Size;
+} VirtualMemoryParameters;
+
+typedef struct VirtualMemoryChunk VirtualMemoryChunk;
 
 /* Satty's interface start */
 
@@ -37,16 +50,16 @@ __SDEVICE_HANDLE_FORWARD_DECLARATION(VirtualMemory);
 
 typedef struct
 {
-   const VirtualMemorySDeviceChunk *Chunks;
-   VirtualMemorySDeviceBaseType ChunksCount;
-   VirtualMemorySDeviceBaseType AddressingStart;
+   const VirtualMemoryChunk *Chunks;
+   VirtualMemoryBaseType ChunksCount;
+   VirtualMemoryBaseType AddressingStart;
 } __SDEVICE_CONSTANT_DATA(VirtualMemory);
 
 typedef struct { } __SDEVICE_SETTINGS_DATA(VirtualMemory);
 
 typedef struct
 {
-   VirtualMemorySDeviceBaseType AddressingEnd;
+   VirtualMemoryBaseType AddressingEnd;
 } __SDEVICE_DYNAMIC_DATA(VirtualMemory);
 
 __SDEVICE_HANDLE_DEFINITION(VirtualMemory);
@@ -55,34 +68,32 @@ __SDEVICE_INITIALIZE_HANDLE_DECLARATION(VirtualMemory,);
 
 typedef enum
 {
-   VIRTUAL_MEMORY_SDEVICE_RUNTIME_WRONG_ADDRESS_ERROR  = 0x01,
-   VIRTUAL_MEMORY_SDEVICE_RUNTIME_CHUNK_FUNCTION_ERROR = 0x02
-} VirtualMemorySDeviceRuntimeError;
+   VIRTUAL_MEMORY_RUNTIME_ERROR_WRONG_ADDRESS = 0x01,
+   VIRTUAL_MEMORY_RUNTIME_ERROR_CHUNK_ACCESS  = 0x02
+} VirtualMemoryRuntimeError;
 
 /* Satty's interface end */
 
-struct VirtualMemorySDeviceChunk
+struct VirtualMemoryChunk
 {
-   VirtualMemorySDeviceChunkFunctionStatus (* ReadFunction)(__SDEVICE_HANDLE(VirtualMemory) *,
-                                                            const VirtualMemorySDeviceFunctionParameters *,
-                                                            void *,
-                                                            const void *);
-   VirtualMemorySDeviceChunkFunctionStatus (* WriteFunction)(__SDEVICE_HANDLE(VirtualMemory) *,
-                                                             const VirtualMemorySDeviceFunctionParameters *,
-                                                             const void *,
-                                                             const void *);
+   VirtualMemoryChunkStatus (* Read)(__SDEVICE_HANDLE(VirtualMemory) *,
+                                     const VirtualMemoryChunkReadParameters *,
+                                     const void *,
+                                     const void *);
+   VirtualMemoryChunkStatus (* Write)(__SDEVICE_HANDLE(VirtualMemory) *,
+                                      const VirtualMemoryChunkWriteParameters *,
+                                      const void *,
+                                      const void *);
    const void *Context;
-   VirtualMemorySDeviceBaseType BytesCount;
+   VirtualMemoryBaseType BytesCount;
 };
 
-VirtualMemorySDeviceStatus VirtualMemorySDeviceRead(__SDEVICE_HANDLE(VirtualMemory) *,
-                                                    const void *,
-                                                    void *,
-                                                    VirtualMemorySDeviceBaseType,
-                                                    VirtualMemorySDeviceBaseType);
+VirtualMemoryStatus VirtualMemoryRead(__SDEVICE_HANDLE(VirtualMemory) *,
+                                      const VirtualMemoryParameters *,
+                                      void *,
+                                      const void *);
 
-VirtualMemorySDeviceStatus VirtualMemorySDeviceWrite(__SDEVICE_HANDLE(VirtualMemory) *,
-                                                     const void *,
-                                                     const void *,
-                                                     VirtualMemorySDeviceBaseType,
-                                                     VirtualMemorySDeviceBaseType);
+VirtualMemoryStatus VirtualMemoryWrite(__SDEVICE_HANDLE(VirtualMemory) *,
+                                       const VirtualMemoryParameters *,
+                                       const void *,
+                                       const void *);

@@ -10,16 +10,16 @@ __SDEVICE_INITIALIZE_HANDLE_DECLARATION(VirtualMemory, handle)
    SDeviceAssert(handle->Constant->Chunks != NULL);
    SDeviceAssert(handle->Constant->ChunksCount != 0);
 
-   VirtualMemorySDeviceBaseType address = handle->Constant->AddressingStart;
+   VirtualMemoryBaseType address = handle->Constant->AddressingStart;
 
-   for(VirtualMemorySDeviceBaseType i = 0; i < handle->Constant->ChunksCount; i++)
+   for(VirtualMemoryBaseType i = 0; i < handle->Constant->ChunksCount; i++)
    {
-      VirtualMemorySDeviceBaseType chunkBytesCount = handle->Constant->Chunks[i].BytesCount;
+      VirtualMemoryBaseType chunkBytesCount = handle->Constant->Chunks[i].BytesCount;
 
       if(chunkBytesCount == 0)
          continue;
 
-      SDeviceAssert(__VIRTUAL_MEMORY_SDEVICE_BASE_TYPE_MAX_VALUE - address >= chunkBytesCount - 1);
+      SDeviceAssert(__VIRTUAL_MEMORY_BASE_TYPE_MAX_VALUE - address >= chunkBytesCount - 1);
       address += chunkBytesCount;
    }
 
