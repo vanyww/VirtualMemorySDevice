@@ -11,14 +11,18 @@ bool TestReadNormal(void)
    __SDEVICE_HANDLE(VirtualMemory) handle = { 0 };
    CreateVirtualMemorySDevice(&handle);
 
-   uint8_t expectedReadData[] = { 0x11, 0x22, 0x33, 0x44 };
-   MockChunksBuffers[0][0] = expectedReadData[0];
-   MockChunksBuffers[0][1] = expectedReadData[1];
-   MockChunksBuffers[1][0] = expectedReadData[2];
-   MockChunksBuffers[1][1] = expectedReadData[3];
+   uint8_t expectedData[] = { 0x11, 0x22, 0x33, 0x44 };
+   MockChunksBuffers[0][0] = expectedData[0];
+   MockChunksBuffers[0][1] = expectedData[1];
+   MockChunksBuffers[1][0] = expectedData[2];
+   MockChunksBuffers[1][1] = expectedData[3];
    uint8_t readData[2 * __MOCK_CHUNK_SIZE];
 
-   VirtualMemorySDeviceRead(&handle, NULL, readData, 0, sizeof(readData));
+   VirtualMemoryStatus status =
+            VirtualMemoryRead(&handle, &(VirtualMemoryParameters){ 0, sizeof(readData) }, readData, NULL);
+
+   if(status != VIRTUAL_MEMORY_STATUS_OK)
+      return false;
 
    if(WasAssertFailed() == true)
       return false;
@@ -26,7 +30,7 @@ bool TestReadNormal(void)
    if(WasRuntimeErrorRaised() == true)
       return false;
 
-   if(memcmp(expectedReadData, readData, sizeof(readData)) != 0)
+   if(memcmp(expectedData, readData, sizeof(readData)) != 0)
       return false;
 
    return true;
@@ -37,14 +41,18 @@ bool TestReadEmpty(void)
    __SDEVICE_HANDLE(VirtualMemory) handle = { 0 };
    CreateVirtualMemorySDevice(&handle);
 
-   uint8_t expectedReadData[] = { 0x11, 0x22, 0x00, 0x00 };
-   MockChunksBuffers[1][0] = expectedReadData[0];
-   MockChunksBuffers[1][1] = expectedReadData[1];
+   uint8_t expectedData[] = { 0x11, 0x22, 0x00, 0x00 };
+   MockChunksBuffers[1][0] = expectedData[0];
+   MockChunksBuffers[1][1] = expectedData[1];
    MockChunksBuffers[2][0] = 0xFF;
    MockChunksBuffers[2][1] = 0xFF;
    uint8_t readData[2 * __MOCK_CHUNK_SIZE];
 
-   VirtualMemorySDeviceRead(&handle, NULL, readData, __MOCK_CHUNK_SIZE, sizeof(readData));
+   VirtualMemoryStatus status =
+            VirtualMemoryRead(&handle, &(VirtualMemoryParameters){ 2, sizeof(readData) }, readData, NULL);
+
+   if(status != VIRTUAL_MEMORY_STATUS_OK)
+      return false;
 
    if(WasAssertFailed() == true)
       return false;
@@ -52,7 +60,7 @@ bool TestReadEmpty(void)
    if(WasRuntimeErrorRaised() == true)
       return false;
 
-   if(memcmp(expectedReadData, readData, sizeof(readData)) != 0)
+   if(memcmp(expectedData, readData, sizeof(readData)) != 0)
       return false;
 
    return true;

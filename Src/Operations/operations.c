@@ -2,26 +2,58 @@
 
 #include <memory.h>
 
-VirtualMemorySDeviceStatus VirtualMemoryTryReadChunk(__SDEVICE_HANDLE(VirtualMemory) *handle,
-                                                     void *data,
-                                                     const VirtualMemorySDeviceChunk *chunk,
-                                                     VirtualMemorySDeviceFunctionParameters *parameters)
+bool TryGetVirtualMemoryPointer(__SDEVICE_HANDLE(VirtualMemory) *handle,
+                                VirtualMemoryBaseType address,
+                                VirtualMemoryPointer *pointer)
 {
-   if(chunk->ReadFunction != NULL)
-      return chunk->ReadFunction(handle, parameters, data, chunk->Context);
+   if(address < handle->Constant->AddressingStart || address > handle->Dynamic.AddressingEnd)
+      return false;
 
-   memset(data, __VIRTUAL_MEMORY_SDEVICE_MOCK_VALUE, parameters->BytesCount);
+   VirtualMemoryBaseType chunkLastAddress = -1;
+   address -= handle->Constant->AddressingStart;
 
-   return VIRTUAL_MEMORY_SDEVICE_STATUS_OK;
+   for(VirtualMemoryBaseType i = 0; i < handle->Constant->ChunksCount; i++)
+   {
+      const VirtualMemoryChunk *chunk = &handle->Constant->Chunks[i];
+      size_t chunkBytes = chunk->BytesCount;
+
+      chunkLastAddress += chunkBytes;
+
+      if(address <= chunkLastAddress)
+      {
+         *pointer = (VirtualMemoryPointer)
+         {
+            .Chunk = chunk,
+            .Offset = address - (chunkLastAddress - chunkBytes + 1)
+         };
+
+         return true;
+      }
+   }
+
+   return false;
 }
 
-VirtualMemorySDeviceStatus VirtualMemoryTryWriteChunk(__SDEVICE_HANDLE(VirtualMemory) *handle,
-                                                      void *data,
-                                                      const VirtualMemorySDeviceChunk *chunk,
-                                                      VirtualMemorySDeviceFunctionParameters *parameters)
+VirtualMemoryStatus ReadVirtualMemoryChunk(__SDEVICE_HANDLE(VirtualMemory) *handle,
+                                           const VirtualMemoryChunk *chunk,
+                                           const VirtualMemoryChunkParameters *parameters,
+                                           const void *callContext)
 {
-   if(chunk->WriteFunction != NULL)
-      return (VirtualMemorySDeviceStatus)chunk->WriteFunction(handle, parameters, data, chunk->Context);
+   if(chunk->Read != NULL)
+      return chunk->Read(handle, &parameters->AsRead, chunk->Context, callContext);
 
-   return VIRTUAL_MEMORY_SDEVICE_STATUS_OK;
+   memset(parameters->AsRead.Data, __VIRTUAL_MEMORY_MOCK_VALUE, parameters->AsRead.Size);
+
+   return VIRTUAL_MEMORY_STATUS_OK;
+}
+
+VirtualMemoryStatus WriteVirtualMemoryChunk(__SDEVICE_HANDLE(VirtualMemory) *handle,
+                                            const VirtualMemoryChunk *chunk,
+                                            const VirtualMemoryChunkParameters *parameters,
+                                            const void *callContext)
+{
+   if(chunk->Write != NULL)
+      return chunk->Write(handle, &parameters->AsWrite, chunk->Context, callContext);
+
+   return VIRTUAL_MEMORY_STATUS_OK;
 }
