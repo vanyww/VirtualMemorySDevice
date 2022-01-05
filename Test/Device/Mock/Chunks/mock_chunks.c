@@ -26,7 +26,7 @@ static VirtualMemoryChunkStatus MockChunkWrite(__SDEVICE_HANDLE(VirtualMemory) *
    return VIRTUAL_MEMORY_CHUNK_STATUS_OK;
 }
 
-VirtualMemoryChunk MockChunks[] =
+const VirtualMemoryChunk MockChunks[] =
 {
    {
       .Read = MockChunkRead,
@@ -52,7 +52,10 @@ const size_t MockChunksCount = sizeof(MockChunks) / sizeof(VirtualMemoryChunk);
 
 const __SDEVICE_CONSTANT_DATA(VirtualMemory) ConstandData =
 {
-   .Chunks = MockChunks,
-   .ChunksCount = MockChunksCount,
-   .AddressingStart = 0x00,
+   .ChunksList = &(const VirtualMemoryChunkList)
+   {
+      .Chunks = MockChunks,
+      .Count = sizeof(MockChunks) / sizeof(VirtualMemoryChunk)
+   },
+   .AddressingStart = 0x00
 };
