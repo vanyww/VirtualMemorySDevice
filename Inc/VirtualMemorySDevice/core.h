@@ -44,14 +44,19 @@ typedef struct
 
 typedef struct VirtualMemoryChunk VirtualMemoryChunk;
 
+typedef struct
+{
+   const VirtualMemoryChunk *Chunks;
+   VirtualMemoryBaseType Count;
+} VirtualMemoryChunkList;
+
 /* Satty's interface start */
 
 __SDEVICE_HANDLE_FORWARD_DECLARATION(VirtualMemory);
 
 typedef struct
 {
-   const VirtualMemoryChunk *Chunks;
-   VirtualMemoryBaseType ChunksCount;
+   const VirtualMemoryChunkList *ChunksList;
    VirtualMemoryBaseType AddressingStart;
 } __SDEVICE_CONSTANT_DATA(VirtualMemory);
 

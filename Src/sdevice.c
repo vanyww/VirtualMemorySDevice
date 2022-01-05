@@ -7,14 +7,15 @@ __SDEVICE_INITIALIZE_HANDLE_DECLARATION(VirtualMemory, handle)
    SDeviceAssert(handle != NULL);
    SDeviceAssert(handle->Constant != NULL);
    SDeviceAssert(handle->IsInitialized == false);
-   SDeviceAssert(handle->Constant->Chunks != NULL);
-   SDeviceAssert(handle->Constant->ChunksCount != 0);
+   SDeviceAssert(handle->Constant->ChunksList != NULL);
+   SDeviceAssert(handle->Constant->ChunksList->Count != 0);
+   SDeviceAssert(handle->Constant->ChunksList->Chunks != NULL);
 
    VirtualMemoryBaseType address = handle->Constant->AddressingStart;
 
-   for(VirtualMemoryBaseType i = 0; i < handle->Constant->ChunksCount; i++)
+   for(VirtualMemoryBaseType i = 0; i < handle->Constant->ChunksList->Count; i++)
    {
-      VirtualMemoryBaseType chunkBytesCount = handle->Constant->Chunks[i].BytesCount;
+      VirtualMemoryBaseType chunkBytesCount = handle->Constant->ChunksList->Chunks[i].BytesCount;
 
       if(chunkBytesCount == 0)
          continue;
