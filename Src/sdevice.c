@@ -1,7 +1,5 @@
 #include "../Inc/VirtualMemorySDevice/core.h"
 
-#include <stddef.h>
-
 __SDEVICE_INITIALIZE_HANDLE_DECLARATION(VirtualMemory, handle)
 {
    SDeviceAssert(handle != NULL);
