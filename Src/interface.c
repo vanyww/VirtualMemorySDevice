@@ -2,8 +2,6 @@
 
 #include "Operations/operations.h"
 
-#include <stddef.h>
-
 static VirtualMemoryStatus PerformVirtualMemoryOperation(__SDEVICE_HANDLE(VirtualMemory) *handle,
                                                          VirtualMemoryChunkOperation operation,
                                                          const VirtualMemoryParameters *parameters,
