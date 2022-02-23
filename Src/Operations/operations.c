@@ -6,15 +6,15 @@ bool TryGetVirtualMemoryPointer(__SDEVICE_HANDLE(VirtualMemory) *handle,
                                 VirtualMemoryBaseType address,
                                 VirtualMemoryPointer *pointer)
 {
-   if(address < handle->Constant->AddressingStart || address > handle->Dynamic.AddressingEnd)
+   if(address < handle->Init.AddressingStart || address > handle->Runtime.AddressingEnd)
       return false;
 
    VirtualMemoryBaseType chunkLastAddress = -1;
-   address -= handle->Constant->AddressingStart;
+   address -= handle->Init.AddressingStart;
 
-   for(VirtualMemoryBaseType i = 0; i < handle->Constant->ChunksList->Count; i++)
+   for(VirtualMemoryBaseType i = 0; i < handle->Init.ChunksList->Count; i++)
    {
-      const VirtualMemoryChunk *chunk = &handle->Constant->ChunksList->Chunks[i];
+      const VirtualMemoryChunk *chunk = &handle->Init.ChunksList->Chunks[i];
       size_t chunkBytes = chunk->BytesCount;
 
       chunkLastAddress += chunkBytes;

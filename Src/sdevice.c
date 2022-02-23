@@ -3,17 +3,16 @@
 __SDEVICE_INITIALIZE_HANDLE_DECLARATION(VirtualMemory, handle)
 {
    SDeviceAssert(handle != NULL);
-   SDeviceAssert(handle->Constant != NULL);
    SDeviceAssert(handle->IsInitialized == false);
-   SDeviceAssert(handle->Constant->ChunksList != NULL);
-   SDeviceAssert(handle->Constant->ChunksList->Count != 0);
-   SDeviceAssert(handle->Constant->ChunksList->Chunks != NULL);
+   SDeviceAssert(handle->Init.ChunksList != NULL);
+   SDeviceAssert(handle->Init.ChunksList->Count != 0);
+   SDeviceAssert(handle->Init.ChunksList->Chunks != NULL);
 
-   VirtualMemoryBaseType address = handle->Constant->AddressingStart;
+   VirtualMemoryBaseType address = handle->Init.AddressingStart;
 
-   for(VirtualMemoryBaseType i = 0; i < handle->Constant->ChunksList->Count; i++)
+   for(VirtualMemoryBaseType i = 0; i < handle->Init.ChunksList->Count; i++)
    {
-      VirtualMemoryBaseType chunkBytesCount = handle->Constant->ChunksList->Chunks[i].BytesCount;
+      VirtualMemoryBaseType chunkBytesCount = handle->Init.ChunksList->Chunks[i].BytesCount;
 
       if(chunkBytesCount == 0)
          continue;
@@ -22,8 +21,8 @@ __SDEVICE_INITIALIZE_HANDLE_DECLARATION(VirtualMemory, handle)
       address += chunkBytesCount;
    }
 
-   SDeviceAssert(address != handle->Constant->AddressingStart);
+   SDeviceAssert(address != handle->Init.AddressingStart);
 
-   handle->Dynamic.AddressingEnd = address - 1;
+   handle->Runtime.AddressingEnd = address - 1;
    handle->IsInitialized = true;
 }

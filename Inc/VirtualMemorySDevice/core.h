@@ -58,14 +58,12 @@ typedef struct
 {
    const VirtualMemoryChunkList *ChunksList;
    VirtualMemoryBaseType AddressingStart;
-} __SDEVICE_CONSTANT_DATA(VirtualMemory);
-
-typedef struct { } __SDEVICE_SETTINGS_DATA(VirtualMemory);
+} __SDEVICE_INIT_DATA(VirtualMemory);
 
 typedef struct
 {
    VirtualMemoryBaseType AddressingEnd;
-} __SDEVICE_DYNAMIC_DATA(VirtualMemory);
+} __SDEVICE_RUNTIME_DATA(VirtualMemory);
 
 __SDEVICE_HANDLE_DEFINITION(VirtualMemory);
 

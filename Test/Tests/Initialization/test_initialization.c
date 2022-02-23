@@ -5,8 +5,7 @@
 
 bool TestVirtualMemoryHandleInitialization(void)
 {
-   __SDEVICE_HANDLE(VirtualMemory) handle = { 0 };
-   CreateVirtualMemorySDevice(&handle);
+   __SDEVICE_HANDLE(VirtualMemory) handle = CreateVirtualMemorySDevice();
 
    if(handle.IsInitialized != true)
       return false;
