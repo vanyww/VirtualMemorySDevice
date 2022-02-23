@@ -3,7 +3,6 @@
 #include <memory.h>
 
 typedef struct { size_t ChunkIndex; } MockChunkContext;
-
 uint8_t MockChunksBuffers[__MOCK_CHUNKS_COUNT][__MOCK_CHUNK_SIZE];
 
 static VirtualMemoryChunkStatus MockChunkRead(__SDEVICE_HANDLE(VirtualMemory) *handle,
@@ -48,14 +47,8 @@ const VirtualMemoryChunk MockChunks[] =
    },
 };
 
-const size_t MockChunksCount = sizeof(MockChunks) / sizeof(VirtualMemoryChunk);
-
-const __SDEVICE_CONSTANT_DATA(VirtualMemory) ConstandData =
+const VirtualMemoryChunkList ChunksList =
 {
-   .ChunksList = &(const VirtualMemoryChunkList)
-   {
-      .Chunks = MockChunks,
-      .Count = sizeof(MockChunks) / sizeof(VirtualMemoryChunk)
-   },
-   .AddressingStart = 0x00
+   .Chunks = MockChunks,
+   .Count = __LENGTHOF(MockChunks)
 };

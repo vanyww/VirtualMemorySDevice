@@ -3,10 +3,19 @@
 
 #include <memory.h>
 
-void CreateVirtualMemorySDevice(__SDEVICE_HANDLE(VirtualMemory) *handle)
+__SDEVICE_HANDLE(VirtualMemory) CreateVirtualMemorySDevice(void)
 {
    memset(MockChunksBuffers, 0, sizeof(MockChunksBuffers));
 
-   handle->Constant = &ConstandData;
-   __SDEVICE_INITIALIZE_HANDLE(VirtualMemory)(handle);
+   __SDEVICE_HANDLE(VirtualMemory) handle =
+   {
+      .Init = (__SDEVICE_INIT_DATA(VirtualMemory))
+      {
+         .ChunksList = &ChunksList,
+         .AddressingStart = 0x00
+      }
+   };
+   __SDEVICE_INITIALIZE_HANDLE(VirtualMemory)(&handle);
+
+   return handle;
 }

@@ -7,5 +7,4 @@
 
 extern uint8_t MockChunksBuffers[__MOCK_CHUNKS_COUNT][__MOCK_CHUNK_SIZE];
 extern const VirtualMemoryChunk MockChunks[];
-extern const size_t MockChunksCount;
-extern const __SDEVICE_CONSTANT_DATA(VirtualMemory) ConstandData;
+extern const VirtualMemoryChunkList ChunksList;
