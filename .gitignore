@@ -4,3 +4,4 @@ Release/
 build/
 /LibraryBuild/
 /TestBuild/
+*.launch
