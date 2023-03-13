@@ -1,19 +1,20 @@
 #include "test_initialization.h"
-#include "../../Device/test_device.h"
-#include "../../Device/Mock/Assertation/mock_assert.h"
-#include "../../Device/Mock/RuntimeError/mock_handle_runtime_error.h"
+#include "../../Mock/Chunks/mock_chunks.h"
+#include "../../Mock/Errors/errors.h"
 
 bool TestVirtualMemoryHandleInitialization(void)
 {
-   __SDEVICE_HANDLE(VirtualMemory) handle = CreateVirtualMemorySDevice();
-
-   if(handle.IsInitialized != true)
-      return false;
+   SDEVICE_INIT_DATA(VirtualMemory) init = { MockChunks, MockChunksCount };
+      __attribute__((cleanup(SDEVICE_DISPOSE_HANDLE(VirtualMemory)))) SDEVICE_HANDLE(VirtualMemory) *handle =
+               SDEVICE_CREATE_HANDLE(VirtualMemory)(&init, NULL, 0, NULL);
 
    if(WasAssertFailed() == true)
       return false;
 
-   if(WasRuntimeErrorRaised() == true)
+   if(WasExceptionThrowed() == true)
+      return false;
+
+   if(WasStatusLogged() == true)
       return false;
 
    return true;

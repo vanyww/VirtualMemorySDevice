@@ -1,14 +1,14 @@
 #include "test_read.h"
-#include "../../../Device/test_device.h"
-#include "../../../Device/Mock/Chunks/mock_chunks.h"
-#include "../../../Device/Mock/Assertation/mock_assert.h"
-#include "../../../Device/Mock/RuntimeError/mock_handle_runtime_error.h"
+#include "../../../Mock/Chunks/mock_chunks.h"
+#include "../../../Mock/Errors/errors.h"
 
 #include <memory.h>
 
 bool TestReadNormal(void)
 {
-   __SDEVICE_HANDLE(VirtualMemory) handle = CreateVirtualMemorySDevice();
+   SDEVICE_INIT_DATA(VirtualMemory) init = { MockChunks, MockChunksCount };
+      __attribute__((cleanup(SDEVICE_DISPOSE_HANDLE(VirtualMemory)))) SDEVICE_HANDLE(VirtualMemory) *handle =
+               SDEVICE_CREATE_HANDLE(VirtualMemory)(&init, NULL, 0, NULL);
 
    uint8_t expectedData[] = { 0x11, 0x22, 0x33, 0x44 };
    MockChunksBuffers[0][0] = expectedData[0];
@@ -17,16 +17,18 @@ bool TestReadNormal(void)
    MockChunksBuffers[1][1] = expectedData[3];
    uint8_t readData[2 * __MOCK_CHUNK_SIZE];
 
-   VirtualMemoryStatus status =
-            VirtualMemoryRead(&handle, &(VirtualMemoryParameters){ 0, sizeof(readData) }, readData, NULL);
+   const VirtualMemorySDeviceReadParameters parameters = { 0, sizeof(readData) , readData, NULL };
 
-   if(status != VIRTUAL_MEMORY_STATUS_OK)
+   if(!VirtualMemorySDeviceTryRead(handle, &parameters))
       return false;
 
    if(WasAssertFailed() == true)
       return false;
 
-   if(WasRuntimeErrorRaised() == true)
+   if(WasExceptionThrowed() == true)
+      return false;
+
+   if(WasStatusLogged() == true)
       return false;
 
    if(memcmp(expectedData, readData, sizeof(readData)) != 0)
@@ -37,7 +39,9 @@ bool TestReadNormal(void)
 
 bool TestReadEmpty(void)
 {
-   __SDEVICE_HANDLE(VirtualMemory) handle = CreateVirtualMemorySDevice();
+   SDEVICE_INIT_DATA(VirtualMemory) init = { MockChunks, MockChunksCount };
+      __attribute__((cleanup(SDEVICE_DISPOSE_HANDLE(VirtualMemory)))) SDEVICE_HANDLE(VirtualMemory) *handle =
+               SDEVICE_CREATE_HANDLE(VirtualMemory)(&init, NULL, 0, NULL);
 
    uint8_t expectedData[] = { 0x11, 0x22, 0x00, 0x00 };
    MockChunksBuffers[1][0] = expectedData[0];
@@ -46,16 +50,18 @@ bool TestReadEmpty(void)
    MockChunksBuffers[2][1] = 0xFF;
    uint8_t readData[2 * __MOCK_CHUNK_SIZE];
 
-   VirtualMemoryStatus status =
-            VirtualMemoryRead(&handle, &(VirtualMemoryParameters){ 2, sizeof(readData) }, readData, NULL);
+   const VirtualMemorySDeviceReadParameters parameters = { 2, sizeof(readData) , readData, NULL };
 
-   if(status != VIRTUAL_MEMORY_STATUS_OK)
+   if(!VirtualMemorySDeviceTryRead(handle, &parameters))
       return false;
 
    if(WasAssertFailed() == true)
       return false;
 
-   if(WasRuntimeErrorRaised() == true)
+   if(WasExceptionThrowed() == true)
+      return false;
+
+   if(WasStatusLogged() == true)
       return false;
 
    if(memcmp(expectedData, readData, sizeof(readData)) != 0)
