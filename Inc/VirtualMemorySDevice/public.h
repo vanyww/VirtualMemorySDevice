@@ -8,6 +8,16 @@
 #error SDevice core version is incorrect.
 #endif
 
+#define VIRTUAL_MEMORY_SDEVICE_VERSION_MAJOR 1
+#define VIRTUAL_MEMORY_SDEVICE_VERSION_MINOR 0
+#define VIRTUAL_MEMORY_SDEVICE_VERSION_PATCH 0
+#define VIRTUAL_MEMORY_SDEVICE_CORE_VERSION ((SDeviceVersion)                                                          \
+{                                                                                                                      \
+   .Major = VIRTUAL_MEMORY_SDEVICE_VERSION_MAJOR,                                                                      \
+   .Minor = VIRTUAL_MEMORY_SDEVICE_VERSION_MINOR,                                                                      \
+   .Patch = VIRTUAL_MEMORY_SDEVICE_VERSION_PATCH                                                                       \
+})
+
 typedef struct VirtualMemorySDeviceChunk VirtualMemorySDeviceChunk;
 
 SDEVICE_HANDLE_FORWARD_DECLARATION(VirtualMemory);
