@@ -9,9 +9,12 @@ SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, parent, identifier, conte
    SDeviceAssert(init != NULL);
 
    const ThisInitData *_init = init;
-   ThisHandle *handle = SDeviceMalloc(sizeof(ThisHandle));
 
    SDeviceAssert(_init->Chunks != NULL || _init->ChunksCount == 0);
+
+   ThisHandle *handle = SDeviceMalloc(sizeof(ThisHandle));
+
+   SDeviceAssert(handle != NULL);
 
    size_t totalChunksSize = 0;
    for(size_t i = 0; i < _init->ChunksCount; i++)
