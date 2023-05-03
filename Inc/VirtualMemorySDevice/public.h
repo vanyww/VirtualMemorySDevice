@@ -4,7 +4,7 @@
 
 #include <stdbool.h>
 
-#if (SDEVICE_CORE_VERSION_MAJOR != 7) || (SDEVICE_CORE_VERSION_MINOR < 0)
+#if (SDEVICE_CORE_VERSION_MAJOR != 8) || (SDEVICE_CORE_VERSION_MINOR < 0)
 #error SDevice core version is incorrect.
 #endif
 
@@ -37,7 +37,9 @@ SDEVICE_INIT_DATA_DECLARATION(VirtualMemory)
    size_t ChunksCount;
 };
 
-SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, parent, identifier, context);
+SDEVICE_STRING_NAME_DECLARATION(VirtualMemory);
+
+SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, context);
 SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer);
 
 typedef struct

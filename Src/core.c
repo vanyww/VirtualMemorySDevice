@@ -4,7 +4,9 @@
 #include "SDeviceCore/errors.h"
 #include "SDeviceCore/heap.h"
 
-SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, parent, identifier, context)
+SDEVICE_STRING_NAME_DEFINITION(VirtualMemory);
+
+SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, context)
 {
    SDeviceAssert(init != NULL);
 
@@ -13,8 +15,14 @@ SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, parent, identifier, conte
    SDeviceAssert(_init->Chunks != NULL || _init->ChunksCount == 0);
 
    ThisHandle *handle = SDeviceMalloc(sizeof(ThisHandle));
-
-   SDeviceAssert(handle != NULL);
+   handle->Header = (SDeviceHandleHeader)
+   {
+      .Context = context,
+      .OwnerHandle = owner,
+      .SDeviceStringName = SDEVICE_STRING_NAME(VirtualMemory),
+      .LatestStatus = VIRTUAL_MEMORY_SDEVICE_STATUS_OK,
+      .Identifier = identifier
+   };
 
    size_t totalChunksSize = 0;
    for(size_t i = 0; i < _init->ChunksCount; i++)
@@ -29,14 +37,6 @@ SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, parent, identifier, conte
    }
 
    handle->Init = *_init;
-   handle->Header = (SDeviceHandleHeader)
-   {
-      .Context = context,
-      .ParentHandle = parent,
-      .Identifier = identifier,
-      .LatestStatus = VIRTUAL_MEMORY_SDEVICE_STATUS_OK
-   };
-
    handle->Runtime.TotalChunksSize = totalChunksSize;
 
    return handle;
