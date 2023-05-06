@@ -49,7 +49,7 @@ static bool TryPerformVirtualMemoryOperation(ThisHandle *handle,
    VirtualMemoryPointer memoryPointer;
    if(!TryGetVirtualMemoryPointer(handle, parameters.AsCommon->Address, &memoryPointer))
    {
-      SDeviceLogStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_WRONG_CHUNK_ADDRESS);
+      SDeviceLogStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_WRONG_ADDRESS);
       return false;
    }
 
