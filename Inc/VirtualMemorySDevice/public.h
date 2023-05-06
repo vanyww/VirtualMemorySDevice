@@ -8,9 +8,9 @@
 #error SDevice core version is incorrect.
 #endif
 
-#define VIRTUAL_MEMORY_SDEVICE_VERSION_MAJOR 1
+#define VIRTUAL_MEMORY_SDEVICE_VERSION_MAJOR 2
 #define VIRTUAL_MEMORY_SDEVICE_VERSION_MINOR 0
-#define VIRTUAL_MEMORY_SDEVICE_VERSION_PATCH 1
+#define VIRTUAL_MEMORY_SDEVICE_VERSION_PATCH 0
 #define VIRTUAL_MEMORY_SDEVICE_CORE_VERSION ((SDeviceVersion)                                                          \
 {                                                                                                                      \
    .Major = VIRTUAL_MEMORY_SDEVICE_VERSION_MAJOR,                                                                      \
