@@ -18,8 +18,6 @@
    .Patch = VIRTUAL_MEMORY_SDEVICE_VERSION_PATCH                                                                       \
 })
 
-typedef struct VirtualMemorySDeviceChunk VirtualMemorySDeviceChunk;
-
 SDEVICE_HANDLE_FORWARD_DECLARATION(VirtualMemory);
 SDEVICE_INIT_DATA_FORWARD_DECLARATION(VirtualMemory);
 
@@ -31,16 +29,12 @@ typedef enum
    VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_VALIDATION_FAIL
 } VirtualMemorySDeviceStatus;
 
-SDEVICE_INIT_DATA_DECLARATION(VirtualMemory)
+typedef enum
 {
-   const VirtualMemorySDeviceChunk *Chunks;
-   size_t ChunksCount;
-};
-
-SDEVICE_STRING_NAME_DECLARATION(VirtualMemory);
-
-SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, context);
-SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer);
+   VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK              = VIRTUAL_MEMORY_SDEVICE_STATUS_OK,
+   VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_PROCESSING_FAIL = VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_PROCESSING_FAIL,
+   VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_VALIDATION_FAIL = VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_VALIDATION_FAIL
+} VirtualMemorySDeviceChunkStatus;
 
 typedef struct
 {
@@ -60,14 +54,7 @@ typedef struct
    const void *CallContext;
 } VirtualMemorySDeviceChunkWriteParameters;
 
-typedef enum
-{
-   VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK              = VIRTUAL_MEMORY_SDEVICE_STATUS_OK,
-   VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_PROCESSING_FAIL = VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_PROCESSING_FAIL,
-   VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_VALIDATION_FAIL = VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_VALIDATION_FAIL
-} VirtualMemorySDeviceChunkStatus;
-
-struct VirtualMemorySDeviceChunk
+typedef struct
 {
    VirtualMemorySDeviceChunkStatus (* Read)(SDEVICE_HANDLE(VirtualMemory) *handle,
                                             const VirtualMemorySDeviceChunkReadParameters *parameters);
@@ -75,7 +62,18 @@ struct VirtualMemorySDeviceChunk
                                              const VirtualMemorySDeviceChunkWriteParameters *parameters);
    const void *Context;
    size_t Size;
+} VirtualMemorySDeviceChunk;
+
+SDEVICE_INIT_DATA_DECLARATION(VirtualMemory)
+{
+   const VirtualMemorySDeviceChunk *Chunks;
+   size_t ChunksCount;
 };
+
+SDEVICE_STRING_NAME_DECLARATION(VirtualMemory);
+
+SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, context);
+SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer);
 
 typedef struct
 {
