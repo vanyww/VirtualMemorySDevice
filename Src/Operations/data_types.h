@@ -4,7 +4,7 @@ typedef struct
 {
    const Chunk *Chunk;
    intptr_t Offset;
-} VirtualMemoryPointer;
+} VirtualMemoryReference;
 
 typedef union __attribute__((transparent_union))
 {

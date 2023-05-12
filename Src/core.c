@@ -23,21 +23,21 @@ SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, contex
       .LatestStatus = VIRTUAL_MEMORY_SDEVICE_STATUS_OK,
       .Identifier = identifier
    };
+   handle->Init = *_init;
 
    size_t totalChunksSize = 0;
    for(size_t i = 0; i < _init->ChunksCount; i++)
    {
       size_t chunkSize = _init->Chunks[i].Size;
 
-      if(chunkSize == 0)
-         continue;
-
-      SDeviceAssert(SIZE_MAX - totalChunksSize >= chunkSize);
-      totalChunksSize += chunkSize;
+      SDeviceAssert(chunkSize != 0);
+      SDeviceEvalAssert(!__builtin_add_overflow(totalChunksSize, chunkSize, &totalChunksSize));
    }
 
-   handle->Init = *_init;
-   handle->Runtime.TotalChunksSize = totalChunksSize;
+   handle->Runtime = (ThisRuntimeData)
+   {
+      .TotalChunksSize = totalChunksSize
+   };
 
    return handle;
 }
@@ -59,18 +59,16 @@ bool VirtualMemorySDeviceTryRead(ThisHandle *handle, const ReadParameters *param
 {
    SDeviceAssert(handle != NULL);
    SDeviceAssert(parameters != NULL);
-   SDeviceAssert(parameters->Size != 0);
-   SDeviceAssert(parameters->Data != NULL);
+   SDeviceAssert(parameters->Data != NULL || parameters->Size == 0);
 
-   return TryPerformVirtualMemoryOperation(handle, TryReadChunk, parameters);
+   return TryPerformVirtualMemoryOperation(handle, ReadChunk, parameters);
 }
 
 bool VirtualMemorySDeviceTryWrite(ThisHandle *handle, const WriteParameters *parameters)
 {
    SDeviceAssert(handle != NULL);
    SDeviceAssert(parameters != NULL);
-   SDeviceAssert(parameters->Size != 0);
-   SDeviceAssert(parameters->Data != NULL);
+   SDeviceAssert(parameters->Data != NULL || parameters->Size == 0);
 
-   return TryPerformVirtualMemoryOperation(handle, TryWriteChunk, parameters);
+   return TryPerformVirtualMemoryOperation(handle, WriteChunk, parameters);
 }
