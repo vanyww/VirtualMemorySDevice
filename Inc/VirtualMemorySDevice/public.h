@@ -54,7 +54,6 @@ typedef struct
    void *Data;
    intptr_t Offset;
    size_t Size;
-   const void *ChunkContext;
    const void *CallContext;
 } VirtualMemorySDeviceChunkReadParameters;
 
@@ -63,19 +62,21 @@ typedef struct
    const void *Data;
    intptr_t Offset;
    size_t Size;
-   const void *ChunkContext;
    const void *CallContext;
 } VirtualMemorySDeviceChunkWriteParameters;
 
-typedef struct
+typedef struct VirtualMemorySDeviceChunk VirtualMemorySDeviceChunk;
+struct VirtualMemorySDeviceChunk
 {
    VirtualMemorySDeviceChunkStatus (* Read)(SDEVICE_HANDLE(VirtualMemory) *handle,
+                                            const VirtualMemorySDeviceChunk *chunk,
                                             const VirtualMemorySDeviceChunkReadParameters *parameters);
    VirtualMemorySDeviceChunkStatus (* Write)(SDEVICE_HANDLE(VirtualMemory) *handle,
+                                             const VirtualMemorySDeviceChunk *chunk,
                                              const VirtualMemorySDeviceChunkWriteParameters *parameters);
    const void *Context;
    size_t Size;
-} VirtualMemorySDeviceChunk;
+};
 
 SDEVICE_INIT_DATA_DECLARATION(VirtualMemory)
 {

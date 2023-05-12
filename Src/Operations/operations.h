@@ -61,8 +61,6 @@ static bool TryPerformVirtualMemoryOperation(ThisHandle *handle,
 
    while(size > 0)
    {
-      chunkParameters.AsCommon.ChunkContext = memoryReference.Chunk->Context;
-
       ChunkStatus status = operation(handle, memoryReference.Chunk, &chunkParameters);
       if(status != VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK)
       {
@@ -87,7 +85,7 @@ static ChunkStatus ReadChunk(ThisHandle *handle, const Chunk *chunk, const Chunk
    SDeviceDebugAssert(parameters != NULL);
 
    if(chunk->Read != NULL)
-      return chunk->Read(handle, &parameters->AsRead);
+      return chunk->Read(handle, chunk, &parameters->AsRead);
 
    memset(parameters->AsRead.Data, VIRTUAL_MEMORY_SDEVICE_FILLER_DATA_VALUE, parameters->AsRead.Size);
 
@@ -101,7 +99,7 @@ static ChunkStatus WriteChunk(ThisHandle *handle, const Chunk *chunk, const Chun
    SDeviceDebugAssert(parameters != NULL);
 
    if(chunk->Write != NULL)
-      return chunk->Write(handle, &parameters->AsWrite);
+      return chunk->Write(handle, chunk, &parameters->AsWrite);
 
    return VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK;
 }

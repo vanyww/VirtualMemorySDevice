@@ -26,7 +26,6 @@ typedef union
       uintptr_t DataPointer;
       intptr_t Offset;
       size_t Size;
-      const void *ChunkContext;
       const void *CallContext;
    } AsCommon;
    ChunkReadParameters AsRead;
