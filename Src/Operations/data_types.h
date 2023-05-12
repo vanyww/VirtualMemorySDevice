@@ -24,8 +24,8 @@ typedef union
    struct
    {
       uintptr_t DataPointer;
-      size_t Size;
       intptr_t Offset;
+      size_t Size;
       const void *ChunkContext;
       const void *CallContext;
    } AsCommon;

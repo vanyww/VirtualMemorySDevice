@@ -52,8 +52,8 @@ typedef enum
 typedef struct
 {
    void *Data;
-   size_t Size;
    intptr_t Offset;
+   size_t Size;
    const void *ChunkContext;
    const void *CallContext;
 } VirtualMemorySDeviceChunkReadParameters;
@@ -61,8 +61,8 @@ typedef struct
 typedef struct
 {
    const void *Data;
-   size_t Size;
    intptr_t Offset;
+   size_t Size;
    const void *ChunkContext;
    const void *CallContext;
 } VirtualMemorySDeviceChunkWriteParameters;
