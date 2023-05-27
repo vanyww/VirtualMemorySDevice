@@ -53,8 +53,8 @@ static bool TryPerformVirtualMemoryOperation(ThisHandle *handle,
       .AsCommon =
       {
         .DataPointer = parameters.AsCommon->DataPointer,
-        .Size = MIN(memoryReference.Chunk->Size - memoryReference.Offset, size),
-        .Offset = memoryReference.Offset,
+        .Size        = MIN(memoryReference.Chunk->Size - memoryReference.Offset, size),
+        .Offset      = memoryReference.Offset,
         .CallContext = parameters.AsCommon->CallContext
       }
    };

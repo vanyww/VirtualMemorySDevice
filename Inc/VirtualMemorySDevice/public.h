@@ -51,28 +51,28 @@ typedef enum
 
 typedef struct
 {
-   void *Data;
-   intptr_t Offset;
-   size_t Size;
+   void       *Data;
+   intptr_t    Offset;
+   size_t      Size;
    const void *CallContext;
 } VirtualMemorySDeviceChunkReadParameters;
 
 typedef struct
 {
    const void *Data;
-   intptr_t Offset;
-   size_t Size;
+   intptr_t    Offset;
+   size_t      Size;
    const void *CallContext;
 } VirtualMemorySDeviceChunkWriteParameters;
 
 typedef struct VirtualMemorySDeviceChunk VirtualMemorySDeviceChunk;
 struct VirtualMemorySDeviceChunk
 {
-   VirtualMemorySDeviceChunkStatus (* Read)(SDEVICE_HANDLE(VirtualMemory) *handle,
-                                            const VirtualMemorySDeviceChunk *chunk,
+   VirtualMemorySDeviceChunkStatus (* Read)(SDEVICE_HANDLE(VirtualMemory)                 *handle,
+                                            const VirtualMemorySDeviceChunk               *chunk,
                                             const VirtualMemorySDeviceChunkReadParameters *parameters);
-   VirtualMemorySDeviceChunkStatus (* Write)(SDEVICE_HANDLE(VirtualMemory) *handle,
-                                             const VirtualMemorySDeviceChunk *chunk,
+   VirtualMemorySDeviceChunkStatus (* Write)(SDEVICE_HANDLE(VirtualMemory)                  *handle,
+                                             const VirtualMemorySDeviceChunk                *chunk,
                                              const VirtualMemorySDeviceChunkWriteParameters *parameters);
    const void *Context;
    size_t Size;
@@ -81,7 +81,7 @@ struct VirtualMemorySDeviceChunk
 SDEVICE_INIT_DATA_DECLARATION(VirtualMemory)
 {
    const VirtualMemorySDeviceChunk *Chunks;
-   size_t ChunksCount;
+   size_t                           ChunksCount;
 };
 
 SDEVICE_STRING_NAME_DECLARATION(VirtualMemory);
@@ -91,21 +91,21 @@ SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer);
 
 typedef struct
 {
-   uintptr_t Address;
-   size_t Size;
+   uintptr_t   Address;
+   size_t      Size;
    const void *Data;
    const void *CallContext;
 } VirtualMemorySDeviceWriteParameters;
 
 typedef struct
 {
-   uintptr_t Address;
-   size_t Size;
-   void *Data;
+   uintptr_t   Address;
+   size_t      Size;
+   void       *Data;
    const void *CallContext;
 } VirtualMemorySDeviceReadParameters;
 
-bool VirtualMemorySDeviceTryRead(SDEVICE_HANDLE(VirtualMemory) *handle,
+bool VirtualMemorySDeviceTryRead(SDEVICE_HANDLE(VirtualMemory)            *handle,
                                  const VirtualMemorySDeviceReadParameters *parameters);
-bool VirtualMemorySDeviceTryWrite(SDEVICE_HANDLE(VirtualMemory) *handle,
+bool VirtualMemorySDeviceTryWrite(SDEVICE_HANDLE(VirtualMemory)             *handle,
                                   const VirtualMemorySDeviceWriteParameters *parameters);

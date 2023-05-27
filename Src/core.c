@@ -17,11 +17,11 @@ SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, contex
    ThisHandle *handle = SDeviceMalloc(sizeof(ThisHandle));
    handle->Header = (SDeviceHandleHeader)
    {
-      .Context = context,
-      .OwnerHandle = owner,
+      .Context           = context,
+      .OwnerHandle       = owner,
       .SDeviceStringName = SDEVICE_STRING_NAME(VirtualMemory),
-      .LatestStatus = VIRTUAL_MEMORY_SDEVICE_STATUS_OK,
-      .Identifier = identifier
+      .LatestStatus      = VIRTUAL_MEMORY_SDEVICE_STATUS_OK,
+      .Identifier        = identifier
    };
    handle->Init = *_init;
 
