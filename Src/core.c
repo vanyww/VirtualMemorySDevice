@@ -31,7 +31,7 @@ SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, contex
       size_t chunkSize = _init->Chunks[i].Size;
 
       SDeviceAssert(chunkSize != 0);
-      SDeviceEvalAssert(!__builtin_add_overflow(totalChunksSize, chunkSize, &totalChunksSize));
+      SDeviceEvalAssert(__builtin_add_overflow(totalChunksSize, chunkSize, &totalChunksSize), != true);
    }
 
    handle->Runtime = (ThisRuntimeData)
