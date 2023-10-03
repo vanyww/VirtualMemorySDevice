@@ -3,8 +3,8 @@
 #include "SDeviceCore/core.h"
 #include "SDeviceCore/config.h"
 
-#if (SDEVICE_CORE_VERSION_MAJOR != 8) || (SDEVICE_CORE_VERSION_MINOR < 0)
-#error SDevice core version is incorrect.
+#if (SDEVICE_CORE_VERSION_MAJOR != 9) || (SDEVICE_CORE_VERSION_MINOR < 0)
+   #error SDevice core version is incorrect.
 #endif
 
 #ifdef VIRTUAL_MEMORY_SDEVICE_USE_EXTERNAL_CONFIG
