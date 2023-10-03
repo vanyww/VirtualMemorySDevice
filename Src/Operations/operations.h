@@ -10,6 +10,40 @@ static VirtualMemoryReference GetVirtualMemoryReference(ThisHandle *handle, uint
    SDeviceDebugAssert(handle != NULL);
    SDeviceDebugAssert(address < handle->Runtime.TotalChunksSize);
 
+#if USE_BINARY_SEARCH
+   size_t leftIdx = 0;
+   size_t rightIdx = handle->Runtime.TotalChunksSize - 1;
+
+   while(rightIdx - leftIdx > 1)
+   {
+      size_t midIdx = (leftIdx + rightIdx)/2;
+      uintptr_t chunkAddress = handle->Runtime.ChunksAddresses[midIdx];
+
+      if(address > chunkAddress)
+      {
+         leftIdx = midIdx;
+      }
+      else if (address < chunkAddress)
+      {
+         rightIdx = midIdx;
+      }
+      else
+      {
+         return (VirtualMemoryReference)
+         {
+            .Chunk = &handle->Init.Chunks[midIdx],
+            .Offset = 0
+         };
+      }
+   }
+
+   size_t resultIdx = (address > handle->Runtime.ChunksAddresses[rightIdx]) ? rightIdx : leftIdx;
+   return (VirtualMemoryReference)
+   {
+      .Chunk = &handle->Init.Chunks[resultIdx],
+      .Offset = address - handle->Runtime.ChunksAddresses[resultIdx]
+   };
+#else
    const Chunk *currentChunk = &handle->Init.Chunks[0];
    uintptr_t lastAddress = currentChunk->Size - 1;
 
@@ -24,6 +58,7 @@ static VirtualMemoryReference GetVirtualMemoryReference(ThisHandle *handle, uint
       .Chunk = currentChunk,
       .Offset = currentChunk->Size - ((lastAddress - address) + 1)
    };
+#endif
 }
 
 static bool TryPerformVirtualMemoryOperation(ThisHandle *handle,
