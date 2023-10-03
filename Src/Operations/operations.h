@@ -5,7 +5,7 @@
 
 #include <memory.h>
 
-#if USE_BINARY_SEARCH
+#if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
 static VirtualMemoryReference GetVirtualMemoryReference(ThisHandle *handle, uintptr_t address)
 {
    SDeviceDebugAssert(handle != NULL);
