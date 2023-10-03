@@ -6,7 +6,10 @@ SDEVICE_RUNTIME_DATA_FORWARD_DECLARATION(VirtualMemory);
 
 SDEVICE_RUNTIME_DATA_DECLARATION(VirtualMemory)
 {
-   size_t TotalChunksSize;
+#if USE_BINARY_SEARCH
+   uintptr_t *ChunksAddresses;
+#endif
+   size_t     TotalChunksSize;
 };
 
 SDEVICE_HANDLE_DECLARATION(VirtualMemory);

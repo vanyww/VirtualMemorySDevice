@@ -36,8 +36,21 @@ SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, contex
 
    handle->Runtime = (ThisRuntimeData)
    {
-      .TotalChunksSize = totalChunksSize
+      .TotalChunksSize = totalChunksSize,
+#if USE_BINARY_SEARCH
+      .ChunksAddresses = SDeviceMalloc(sizeof(uintptr_t[totalChunksSize]))
+#endif
    };
+
+#if USE_BINARY_SEARCH
+   uintptr_t chunkAddres = 0;
+   handle->Runtime.ChunksAddresses[0] = chunkAddres;
+   for(size_t i = 1; i < _init->ChunksCount; i++)
+   {
+      chunkAddres += _init->Chunks[i].Size;
+      handle->Runtime.ChunksAddresses[i] = chunkAddres;
+   }
+#endif
 
    return handle;
 }
