@@ -5,12 +5,12 @@
 
 #include <memory.h>
 
+#if USE_BINARY_SEARCH
 static VirtualMemoryReference GetVirtualMemoryReference(ThisHandle *handle, uintptr_t address)
 {
    SDeviceDebugAssert(handle != NULL);
    SDeviceDebugAssert(address < handle->Runtime.TotalChunksSize);
 
-#if USE_BINARY_SEARCH
    size_t leftIdx = 0;
    size_t rightIdx = handle->Runtime.TotalChunksSize - 1;
 
@@ -43,7 +43,13 @@ static VirtualMemoryReference GetVirtualMemoryReference(ThisHandle *handle, uint
       .Chunk = &handle->Init.Chunks[resultIdx],
       .Offset = address - handle->Runtime.ChunksAddresses[resultIdx]
    };
+}
 #else
+static VirtualMemoryReference GetVirtualMemoryReference(ThisHandle *handle, uintptr_t address)
+{
+   SDeviceDebugAssert(handle != NULL);
+   SDeviceDebugAssert(address < handle->Runtime.TotalChunksSize);
+
    const Chunk *currentChunk = &handle->Init.Chunks[0];
    uintptr_t lastAddress = currentChunk->Size - 1;
 
@@ -58,8 +64,8 @@ static VirtualMemoryReference GetVirtualMemoryReference(ThisHandle *handle, uint
       .Chunk = currentChunk,
       .Offset = currentChunk->Size - ((lastAddress - address) + 1)
    };
-#endif
 }
+#endif
 
 static bool TryPerformVirtualMemoryOperation(ThisHandle *handle,
                                              ChunkOperation operation,
