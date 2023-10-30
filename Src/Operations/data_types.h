@@ -1,37 +1,41 @@
+#pragma once
+
 #include "../private.h"
 
 typedef struct
 {
-   const Chunk *Chunk;
-   intptr_t     Offset;
-} VirtualMemoryReference;
+   const ChunkInternal *Chunk;
+   size_t               Offset;
+} MemoryReference;
 
 typedef union __attribute__((transparent_union))
 {
    const struct
    {
+      const void *Data;
+      const void *CallContext;
       uintptr_t   Address;
       size_t      Size;
-      uintptr_t   DataPointer;
-      const void *CallContext;
    } *AsCommon;
-   const ReadParameters  *AsRead;
-   const WriteParameters *AsWrite;
+
+   const ReadParametersInternal  *AsRead;
+   const WriteParametersInternal *AsWrite;
 } OperationParameters;
 
 typedef union
 {
    struct
    {
-      uintptr_t   DataPointer;
-      intptr_t    Offset;
-      size_t      Size;
+      const void *Data;
       const void *CallContext;
+      size_t      Offset;
+      size_t      Size;
    } AsCommon;
-   ChunkReadParameters  AsRead;
-   ChunkWriteParameters AsWrite;
+
+   ChunkReadParametersInternal  AsRead;
+   ChunkWriteParametersInternal AsWrite;
 } ChunkOperationParameters;
 
-typedef ChunkStatus (* ChunkOperation)(ThisHandle                     *handle,
-                                       const Chunk                    *chunk,
-                                       const ChunkOperationParameters *parameters);
+typedef ChunkStatusInternal (* ChunkOperation)(ThisHandle                     *handle,
+                                               const ChunkInternal            *chunk,
+                                               const ChunkOperationParameters *parameters);

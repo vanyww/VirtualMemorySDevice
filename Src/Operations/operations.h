@@ -1,140 +1,112 @@
-#include "data_types.h"
+#pragma once
+
+#include "helpers.h"
 
 #include "SDeviceCore/common.h"
-#include "SDeviceCore/errors.h"
 
 #include <memory.h>
 
-#if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
-static VirtualMemoryReference GetVirtualMemoryReference(ThisHandle *handle, uintptr_t address)
+static ChunkStatusInternal PerformMemoryOperation(ThisHandle               *handle,
+                                                  ChunkOperation            operation,
+                                                  const OperationParameters parameters)
 {
-   SDeviceDebugAssert(handle != NULL);
-   SDeviceDebugAssert(address < handle->Runtime->TotalChunksSize);
+   ChunkStatusInternal status;
+   size_t size = parameters.AsCommon->Size;
 
-   size_t leftChunkIdx = 0,
-          rightChunkIdx = handle->Init->ChunksCount - 1;
-
-   for(;;)
+   if(size > 0)
    {
-      size_t middleChunkIdx = leftChunkIdx + (rightChunkIdx - leftChunkIdx) / 2;
-      uintptr_t middleChunkAddress = handle->Runtime->ChunksAddresses[middleChunkIdx];
-      const Chunk *middleChunk = &handle->Init->Chunks[middleChunkIdx];
+      uintptr_t lastAddress,
+                firstAddress = parameters.AsCommon->Address;
 
-      if(address < middleChunkAddress)
+      if(TRY_ADD_INT_CHECKED(firstAddress, size - 1, &lastAddress) && lastAddress <= handle->Runtime->HighestAddress)
       {
-         rightChunkIdx = middleChunkIdx - 1;
-      }
-      else if(address > middleChunkAddress + (middleChunk->Size - 1))
-      {
-         leftChunkIdx = middleChunkIdx + 1;
+         MemoryReference memoryReference = FindMemoryReference(handle, firstAddress);
+         ChunkOperationParameters chunkParameters =
+         {
+            .AsCommon =
+            {
+              .Data        = parameters.AsCommon->Data,
+              .Offset      = memoryReference.Offset,
+              .Size        = MIN(memoryReference.Chunk->Size - memoryReference.Offset, size),
+              .CallContext = parameters.AsCommon->CallContext
+            }
+         };
+
+         status = operation(handle, memoryReference.Chunk, &chunkParameters);
+
+         if(status == VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK && size > chunkParameters.AsCommon.Size)
+         {
+            chunkParameters.AsCommon.Offset = 0;
+
+            do
+            {
+               size -= chunkParameters.AsCommon.Size;
+               chunkParameters.AsCommon.Data += chunkParameters.AsCommon.Size;
+               chunkParameters.AsCommon.Size = MIN(memoryReference.Chunk->Size, size);
+               memoryReference.Chunk++;
+
+               status = operation(handle, memoryReference.Chunk, &chunkParameters);
+            }
+            while(status == VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK && size > chunkParameters.AsCommon.Size);
+         }
       }
       else
       {
-         return (VirtualMemoryReference)
-         {
-            .Chunk  = middleChunk,
-            .Offset = address - middleChunkAddress
-         };
+         SDeviceLogStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_WRONG_ADDRESS);
+         status = VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_VALIDATION_FAIL;
       }
    }
-}
-#else
-static VirtualMemoryReference GetVirtualMemoryReference(ThisHandle *handle, uintptr_t address)
-{
-   SDeviceDebugAssert(handle != NULL);
-   SDeviceDebugAssert(address < handle->Runtime.TotalChunksSize);
-
-   const Chunk *currentChunk = &handle->Init.Chunks[0];
-   uintptr_t lastAddress = currentChunk->Size - 1;
-
-   while(address > lastAddress)
+   else
    {
-      currentChunk++;
-      lastAddress += currentChunk->Size;
-   };
-
-   return (VirtualMemoryReference)
-   {
-      .Chunk = currentChunk,
-      .Offset = currentChunk->Size - ((lastAddress - address) + 1)
-   };
-}
-#endif
-
-static bool TryPerformVirtualMemoryOperation(ThisHandle *handle,
-                                             ChunkOperation operation,
-                                             const OperationParameters parameters)
-{
-   SDeviceDebugAssert(handle != NULL);
-   SDeviceDebugAssert(operation != NULL);
-   SDeviceDebugAssert(parameters.AsCommon != NULL);
-
-   size_t size = parameters.AsCommon->Size;
-   uintptr_t address = parameters.AsCommon->Address;
-
-   if(size == 0)
-      return true;
-
-   uintptr_t lastAddress;
-   if(__builtin_add_overflow(address, size - 1, &lastAddress) || lastAddress >= handle->Runtime.TotalChunksSize)
-   {
-      SDeviceLogStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_WRONG_ADDRESS_OR_SIZE);
-      return false;
+      status = VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK;
    }
 
-   VirtualMemoryReference memoryReference = GetVirtualMemoryReference(handle, address);
-   ChunkOperationParameters chunkParameters =
-   {
-      .AsCommon =
-      {
-        .DataPointer = parameters.AsCommon->DataPointer,
-        .Size        = MIN(memoryReference.Chunk->Size - memoryReference.Offset, size),
-        .Offset      = memoryReference.Offset,
-        .CallContext = parameters.AsCommon->CallContext
-      }
-   };
-
-   while(size > 0)
-   {
-      ChunkStatus status = operation(handle, memoryReference.Chunk, &chunkParameters);
-      if(status != VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK)
-      {
-         SDeviceLogStatus(handle, status);
-         return false;
-      }
-
-      size -= chunkParameters.AsCommon.Size;
-      chunkParameters.AsCommon.DataPointer += chunkParameters.AsCommon.Size;
-      chunkParameters.AsCommon.Size = MIN(memoryReference.Chunk->Size, size);
-      chunkParameters.AsCommon.Offset = 0;
-      memoryReference.Chunk++;
-   }
-
-   return true;
+   return status;
 }
 
-static ChunkStatus ReadChunk(ThisHandle *handle, const Chunk *chunk, const ChunkOperationParameters *parameters)
+static ChunkStatusInternal ReadChunk(ThisHandle                     *handle,
+                                     const ChunkInternal            *chunk,
+                                     const ChunkOperationParameters *parameters)
 {
-   SDeviceDebugAssert(chunk != NULL);
-   SDeviceDebugAssert(handle != NULL);
-   SDeviceDebugAssert(parameters != NULL);
+   ChunkStatusInternal status;
 
    if(chunk->Read != NULL)
-      return chunk->Read(handle, chunk, &parameters->AsRead);
+   {
+      status = chunk->Read(handle, chunk, &parameters->AsRead);
 
-   memset(parameters->AsRead.Data, VIRTUAL_MEMORY_SDEVICE_FILLER_DATA_VALUE, parameters->AsRead.Size);
+      SDeviceAssert(VIRTUAL_MEMORY_SDEVICE_IS_VALID_CHUNK_STATUS(status));
 
-   return VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK;
+      if(status != VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK)
+         LogReadFailStatus(handle, FindChunkAddress(handle, chunk), status);
+   }
+   else
+   {
+      memset(parameters->AsRead.Data, VIRTUAL_MEMORY_SDEVICE_FILLER_DATA_VALUE, parameters->AsRead.Size);
+      status = VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK;
+   }
+
+   return status;
 }
 
-static ChunkStatus WriteChunk(ThisHandle *handle, const Chunk *chunk, const ChunkOperationParameters *parameters)
+static ChunkStatusInternal WriteChunk(ThisHandle                     *handle,
+                                      const ChunkInternal            *chunk,
+                                      const ChunkOperationParameters *parameters)
 {
-   SDeviceDebugAssert(chunk != NULL);
-   SDeviceDebugAssert(handle != NULL);
-   SDeviceDebugAssert(parameters != NULL);
+   ChunkStatusInternal status;
 
    if(chunk->Write != NULL)
-      return chunk->Write(handle, chunk, &parameters->AsWrite);
+   {
+      status = chunk->Write(handle, chunk, &parameters->AsWrite);
 
-   return VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK;
+      SDeviceAssert(VIRTUAL_MEMORY_SDEVICE_IS_VALID_CHUNK_STATUS(status));
+
+      if(status != VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK)
+         LogWriteFailStatus(handle, FindChunkAddress(handle, chunk), status);
+   }
+   else
+   {
+      status = VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK;
+   }
+
+   return status;
 }

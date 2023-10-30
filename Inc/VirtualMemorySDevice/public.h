@@ -1,68 +1,34 @@
 #pragma once
 
+#include "log.h"
 #include "config.h"
+#include "dependencies.h"
 
-#include <stdbool.h>
+/* 074c9afa-6248-11ee-8c95-0492264b1031 */
+#define VIRTUAL_MEMORY_SDEVICE_UUID_HIGH 0x074c9afa624811ee
+#define VIRTUAL_MEMORY_SDEVICE_UUID_LOW  0x8c950492264b1031
 
 #define VIRTUAL_MEMORY_SDEVICE_VERSION_MAJOR 2
 #define VIRTUAL_MEMORY_SDEVICE_VERSION_MINOR 0
 #define VIRTUAL_MEMORY_SDEVICE_VERSION_PATCH 0
-#define VIRTUAL_MEMORY_SDEVICE_CORE_VERSION ((SDeviceVersion)                                                          \
-{                                                                                                                      \
-   .Major = VIRTUAL_MEMORY_SDEVICE_VERSION_MAJOR,                                                                      \
-   .Minor = VIRTUAL_MEMORY_SDEVICE_VERSION_MINOR,                                                                      \
-   .Patch = VIRTUAL_MEMORY_SDEVICE_VERSION_PATCH                                                                       \
-})
 
 SDEVICE_HANDLE_FORWARD_DECLARATION(VirtualMemory);
 SDEVICE_INIT_DATA_FORWARD_DECLARATION(VirtualMemory);
 
-typedef enum
-{
-   VIRTUAL_MEMORY_SDEVICE_STATUS_OK,
-   VIRTUAL_MEMORY_SDEVICE_STATUS_WRONG_ADDRESS_OR_SIZE,
-   VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_PROCESSING_FAIL,
-   VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_VALIDATION_FAIL
-} VirtualMemorySDeviceStatus;
-
-#define VIRTUAL_MEMORY_SDEVICE_IS_VALID_STATUS(value) (                                                                \
-{                                                                                                                      \
-   __auto_type _value = (value);                                                                                       \
-   _value == VIRTUAL_MEMORY_SDEVICE_STATUS_OK                    ||                                                    \
-   _value == VIRTUAL_MEMORY_SDEVICE_STATUS_WRONG_ADDRESS         ||                                                    \
-   _value == VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_PROCESSING_FAIL ||                                                    \
-   _value == VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_VALIDATION_FAIL;                                                      \
-})
-
-typedef enum
-{
-   VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK              = VIRTUAL_MEMORY_SDEVICE_STATUS_OK,
-   VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_PROCESSING_FAIL = VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_PROCESSING_FAIL,
-   VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_VALIDATION_FAIL = VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_VALIDATION_FAIL
-} VirtualMemorySDeviceChunkStatus;
-
-#define VIRTUAL_MEMORY_SDEVICE_IS_VALID_CHUNK_STATUS(value) (                                                          \
-{                                                                                                                      \
-   __auto_type _value = (value);                                                                                       \
-   _value == VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK              ||                                                    \
-   _value == VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_PROCESSING_FAIL ||                                                    \
-   _value == VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_VALIDATION_FAIL;                                                      \
-})
-
 typedef struct
 {
    void       *Data;
-   intptr_t    Offset;
-   size_t      Size;
    const void *CallContext;
+   size_t      Offset;
+   size_t      Size;
 } VirtualMemorySDeviceChunkReadParameters;
 
 typedef struct
 {
    const void *Data;
-   intptr_t    Offset;
-   size_t      Size;
    const void *CallContext;
+   size_t      Offset;
+   size_t      Size;
 } VirtualMemorySDeviceChunkWriteParameters;
 
 typedef struct VirtualMemorySDeviceChunk VirtualMemorySDeviceChunk;
@@ -75,7 +41,7 @@ struct VirtualMemorySDeviceChunk
                                              const VirtualMemorySDeviceChunk                *chunk,
                                              const VirtualMemorySDeviceChunkWriteParameters *parameters);
    const void *Context;
-   size_t Size;
+   size_t      Size;
 };
 
 SDEVICE_INIT_DATA_DECLARATION(VirtualMemory)
@@ -84,28 +50,28 @@ SDEVICE_INIT_DATA_DECLARATION(VirtualMemory)
    size_t                           ChunksCount;
 };
 
-SDEVICE_STRING_NAME_DECLARATION(VirtualMemory);
+SDEVICE_IDENTITY_BLOCK_DECLARATION(VirtualMemory);
 
 SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, context);
 SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer);
 
 typedef struct
 {
-   uintptr_t   Address;
-   size_t      Size;
    const void *Data;
    const void *CallContext;
+   uintptr_t   Address;
+   size_t      Size;
 } VirtualMemorySDeviceWriteParameters;
 
 typedef struct
 {
-   uintptr_t   Address;
-   size_t      Size;
    void       *Data;
    const void *CallContext;
+   uintptr_t   Address;
+   size_t      Size;
 } VirtualMemorySDeviceReadParameters;
 
-bool VirtualMemorySDeviceTryRead(SDEVICE_HANDLE(VirtualMemory)            *handle,
-                                 const VirtualMemorySDeviceReadParameters *parameters);
-bool VirtualMemorySDeviceTryWrite(SDEVICE_HANDLE(VirtualMemory)             *handle,
-                                  const VirtualMemorySDeviceWriteParameters *parameters);
+VirtualMemorySDeviceChunkStatus VirtualMemorySDeviceRead(SDEVICE_HANDLE(VirtualMemory)            *handle,
+                                                         const VirtualMemorySDeviceReadParameters *parameters);
+VirtualMemorySDeviceChunkStatus VirtualMemorySDeviceWrite(SDEVICE_HANDLE(VirtualMemory)             *handle,
+                                                          const VirtualMemorySDeviceWriteParameters *parameters);
