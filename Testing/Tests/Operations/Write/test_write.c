@@ -13,18 +13,9 @@ bool TestWriteNormal(void)
    uint8_t expectedData[] = { 0x11, 0x22, 0x33, 0x44 };
    uint8_t writeData[] = { 0x11, 0x22, 0x33, 0x44 };
 
-   const VirtualMemorySDeviceWriteParameters parameters = { 0, sizeof(writeData) , writeData, NULL };
+   const VirtualMemorySDeviceWriteParameters parameters = { writeData, NULL, 0, sizeof(writeData) };
 
-   if(!VirtualMemorySDeviceTryWrite(handle, &parameters))
-      return false;
-
-   if(WasAssertFailed() == true)
-      return false;
-
-   if(WasExceptionThrowed() == true)
-      return false;
-
-   if(WasStatusLogged() == true)
+   if(VirtualMemorySDeviceWrite(handle, &parameters) != VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK)
       return false;
 
    if(memcmp(expectedData, MockChunksBuffers[0], sizeof(writeData)) != 0)
@@ -45,18 +36,9 @@ bool TestWriteEmpty(void)
    MockChunksBuffers[2][0] = 0x00;
    MockChunksBuffers[2][1] = 0x00;
 
-   const VirtualMemorySDeviceWriteParameters parameters = { 2, sizeof(writeData) , writeData, NULL };
+   const VirtualMemorySDeviceWriteParameters parameters = { writeData, NULL, 2, sizeof(writeData) };
 
-   if(!VirtualMemorySDeviceTryWrite(handle, &parameters))
-      return false;
-
-   if(WasAssertFailed() == true)
-      return false;
-
-   if(WasExceptionThrowed() == true)
-      return false;
-
-   if(WasStatusLogged() == true)
+   if(VirtualMemorySDeviceWrite(handle, &parameters) != VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK)
       return false;
 
    if(memcmp(expectedData, MockChunksBuffers[1], sizeof(writeData)) != 0)

@@ -8,14 +8,5 @@ bool TestVirtualMemoryHandleInitialization(void)
       __attribute__((cleanup(SDEVICE_DISPOSE_HANDLE(VirtualMemory)))) SDEVICE_HANDLE(VirtualMemory) *handle =
                SDEVICE_CREATE_HANDLE(VirtualMemory)(&init, NULL, 0, NULL);
 
-   if(WasAssertFailed() == true)
-      return false;
-
-   if(WasExceptionThrowed() == true)
-      return false;
-
-   if(WasStatusLogged() == true)
-      return false;
-
    return true;
 }

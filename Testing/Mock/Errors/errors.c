@@ -2,42 +2,17 @@
 
 #include "SDeviceCore/errors.h"
 
-static bool WasAssertFailedFlag = false;
-static bool WasExceptionThrowedFlag = false;
-static bool WasStatusLoggedFlag = false;
-
-bool WasAssertFailed(void)
+void SDeviceProcessAssertFail(void)
 {
-   bool state = WasAssertFailedFlag;
-   WasAssertFailedFlag = false;
-   return state;
+   for(;;);
 }
 
-bool WasExceptionThrowed(void)
+void SDeviceProcessPanic(const void *_handle)
 {
-   bool state = WasExceptionThrowedFlag;
-   WasExceptionThrowedFlag = false;
-   return state;
+   for(;;);
 }
 
-bool WasStatusLogged(void)
+void SDeviceProcessLogStatus(const void *_handle, const void *extras, size_t extrasSize)
 {
-   bool state = WasStatusLoggedFlag;
-   WasStatusLoggedFlag = false;
-   return state;
-}
-
-void SDeviceProcessAssertFail(char *, int)
-{
-   WasAssertFailedFlag = true;
-}
-
-void SDeviceProcessUnhandledThrow(CEXCEPTION_T handle)
-{
-   WasExceptionThrowedFlag = true;
-}
-
-void SDeviceProcessLogStatus(const void *)
-{
-   WasStatusLoggedFlag = true;
+   for(;;);
 }

@@ -17,18 +17,9 @@ bool TestReadNormal(void)
    MockChunksBuffers[1][1] = expectedData[3];
    uint8_t readData[2 * __MOCK_CHUNK_SIZE];
 
-   const VirtualMemorySDeviceReadParameters parameters = { 0, sizeof(readData) , readData, NULL };
+   const VirtualMemorySDeviceReadParameters parameters = { readData, NULL, 0, sizeof(readData) };
 
-   if(!VirtualMemorySDeviceTryRead(handle, &parameters))
-      return false;
-
-   if(WasAssertFailed() == true)
-      return false;
-
-   if(WasExceptionThrowed() == true)
-      return false;
-
-   if(WasStatusLogged() == true)
+   if(VirtualMemorySDeviceRead(handle, &parameters) != VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK)
       return false;
 
    if(memcmp(expectedData, readData, sizeof(readData)) != 0)
@@ -50,18 +41,9 @@ bool TestReadEmpty(void)
    MockChunksBuffers[2][1] = 0xFF;
    uint8_t readData[2 * __MOCK_CHUNK_SIZE];
 
-   const VirtualMemorySDeviceReadParameters parameters = { 2, sizeof(readData) , readData, NULL };
+   const VirtualMemorySDeviceReadParameters parameters = { readData, NULL, 2, sizeof(readData) };
 
-   if(!VirtualMemorySDeviceTryRead(handle, &parameters))
-      return false;
-
-   if(WasAssertFailed() == true)
-      return false;
-
-   if(WasExceptionThrowed() == true)
-      return false;
-
-   if(WasStatusLogged() == true)
+   if(VirtualMemorySDeviceRead(handle, &parameters) != VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK)
       return false;
 
    if(memcmp(expectedData, readData, sizeof(readData)) != 0)
