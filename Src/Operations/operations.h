@@ -9,40 +9,34 @@
 static VirtualMemoryReference GetVirtualMemoryReference(ThisHandle *handle, uintptr_t address)
 {
    SDeviceDebugAssert(handle != NULL);
-   SDeviceDebugAssert(address < handle->Runtime.TotalChunksSize);
+   SDeviceDebugAssert(address < handle->Runtime->TotalChunksSize);
 
-   size_t leftIdx = 0;
-   size_t rightIdx = handle->Runtime.TotalChunksSize - 1;
+   size_t leftChunkIdx = 0,
+          rightChunkIdx = handle->Init->ChunksCount - 1;
 
-   while(rightIdx - leftIdx > 1)
+   for(;;)
    {
-      size_t midIdx = (leftIdx + rightIdx)/2;
-      uintptr_t chunkAddress = handle->Runtime.ChunksAddresses[midIdx];
+      size_t middleChunkIdx = leftChunkIdx + (rightChunkIdx - leftChunkIdx) / 2;
+      uintptr_t middleChunkAddress = handle->Runtime->ChunksAddresses[middleChunkIdx];
+      const Chunk *middleChunk = &handle->Init->Chunks[middleChunkIdx];
 
-      if(address > chunkAddress)
+      if(address < middleChunkAddress)
       {
-         leftIdx = midIdx;
+         rightChunkIdx = middleChunkIdx - 1;
       }
-      else if (address < chunkAddress)
+      else if(address > middleChunkAddress + (middleChunk->Size - 1))
       {
-         rightIdx = midIdx;
+         leftChunkIdx = middleChunkIdx + 1;
       }
       else
       {
          return (VirtualMemoryReference)
          {
-            .Chunk = &handle->Init.Chunks[midIdx],
-            .Offset = 0
+            .Chunk  = middleChunk,
+            .Offset = address - middleChunkAddress
          };
       }
    }
-
-   size_t resultIdx = (address > handle->Runtime.ChunksAddresses[rightIdx]) ? rightIdx : leftIdx;
-   return (VirtualMemoryReference)
-   {
-      .Chunk = &handle->Init.Chunks[resultIdx],
-      .Offset = address - handle->Runtime.ChunksAddresses[resultIdx]
-   };
 }
 #else
 static VirtualMemoryReference GetVirtualMemoryReference(ThisHandle *handle, uintptr_t address)
