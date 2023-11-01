@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDeviceCore/config.h"
+#include "SDeviceCore/common.h"
 
 #if !defined(VIRTUAL_MEMORY_SDEVICE_USE_EXTERNAL_CONFIG) || defined(DOXYGEN)
    #define VIRTUAL_MEMORY_SDEVICE_USE_EXTERNAL_CONFIG false
@@ -17,3 +18,15 @@
 #if !defined(VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH) || defined(DOXYGEN)
    #define VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH true
 #endif
+
+#if !defined(VIRTUAL_MEMORY_SDEVICE_ADDRESS_TYPE) || defined(DOXYGEN)
+   #define VIRTUAL_MEMORY_SDEVICE_ADDRESS_TYPE uintptr_t
+#endif
+
+static_assert(HAS_VALUE_UNSIGNED_TYPE(VIRTUAL_MEMORY_SDEVICE_ADDRESS_TYPE));
+
+#if !defined(VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE) || defined(DOXYGEN)
+   #define VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE size_t
+#endif
+
+static_assert(HAS_VALUE_UNSIGNED_TYPE(VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE));

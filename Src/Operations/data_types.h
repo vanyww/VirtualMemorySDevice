@@ -5,7 +5,7 @@
 typedef struct
 {
    const ChunkInternal *Chunk;
-   size_t               Offset;
+   SizeType             Offset;
 } MemoryReference;
 
 typedef union __attribute__((transparent_union))
@@ -14,8 +14,8 @@ typedef union __attribute__((transparent_union))
    {
       const void *Data;
       const void *CallContext;
-      uintptr_t   Address;
-      size_t      Size;
+      AddressType Address;
+      SizeType    Size;
    } *AsCommon;
 
    const ReadParametersInternal  *AsRead;
@@ -28,8 +28,8 @@ typedef union
    {
       const void *Data;
       const void *CallContext;
-      size_t      Offset;
-      size_t      Size;
+      SizeType    Offset;
+      SizeType    Size;
    } AsCommon;
 
    ChunkReadParametersInternal  AsRead;

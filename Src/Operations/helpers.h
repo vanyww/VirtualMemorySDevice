@@ -13,7 +13,7 @@ static MemoryReference FindMemoryReference(ThisHandle *handle, uintptr_t address
    for(;;)
    {
       size_t middleChunkIdx = leftChunkIdx + (rightChunkIdx - leftChunkIdx) / 2;
-      uintptr_t middleChunkAddress = handle->Runtime->ChunkAddressMap[middleChunkIdx];
+      AddressType middleChunkAddress = handle->Runtime->ChunkAddressMap[middleChunkIdx];
       const ChunkInternal *middleChunk = &handle->Init->Chunks[middleChunkIdx];
 
       if(address < middleChunkAddress)
@@ -35,7 +35,7 @@ static MemoryReference FindMemoryReference(ThisHandle *handle, uintptr_t address
    }
 #else
    const ChunkInternal *chunk = handle->Init->Chunks;
-   uintptr_t lastAddress = chunk->Size - 1;
+   AddressType lastAddress = chunk->Size - 1;
 
    while(address > lastAddress)
    {
@@ -52,12 +52,12 @@ static MemoryReference FindMemoryReference(ThisHandle *handle, uintptr_t address
 }
 
 __attribute__((unused))
-static uintptr_t FindChunkAddress(ThisHandle *handle, const ChunkInternal *chunk)
+static AddressType FindChunkAddress(ThisHandle *handle, const ChunkInternal *chunk)
 {
 #if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
    return handle->Runtime->ChunkAddressMap[chunk - handle->Init->Chunks];
 #else
-   uintptr_t chunkAddress = 0;
+   AddressType chunkAddress = 0;
 
    while(chunk > handle->Init->Chunks)
    {

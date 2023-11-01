@@ -29,18 +29,8 @@
 #define LogWriteFailStatus(handle, address, chunkStatus)                                                               \
    LogOperationStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_WRITE_FAIL, address, chunkStatus)
 
-SDEVICE_RUNTIME_DATA_FORWARD_DECLARATION(VirtualMemory);
-
-SDEVICE_RUNTIME_DATA_DECLARATION(VirtualMemory)
-{
-#if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
-   uintptr_t *ChunkAddressMap;
-#endif
-   uintptr_t  HighestAddress;
-};
-
-SDEVICE_HANDLE_DECLARATION(VirtualMemory);
-SDEVICE_INTERNAL_ALIASES_DECLARATION(VirtualMemory);
+typedef VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE SizeType;
+typedef VIRTUAL_MEMORY_SDEVICE_ADDRESS_TYPE AddressType;
 
 typedef VirtualMemorySDeviceChunk ChunkInternal;
 typedef VirtualMemorySDeviceChunkStatus ChunkStatusInternal;
@@ -48,3 +38,16 @@ typedef VirtualMemorySDeviceReadParameters ReadParametersInternal;
 typedef VirtualMemorySDeviceWriteParameters WriteParametersInternal;
 typedef VirtualMemorySDeviceChunkReadParameters ChunkReadParametersInternal;
 typedef VirtualMemorySDeviceChunkWriteParameters ChunkWriteParametersInternal;
+
+SDEVICE_RUNTIME_DATA_FORWARD_DECLARATION(VirtualMemory);
+
+SDEVICE_RUNTIME_DATA_DECLARATION(VirtualMemory)
+{
+#if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
+   AddressType *ChunkAddressMap;
+#endif
+   AddressType  HighestAddress;
+};
+
+SDEVICE_HANDLE_DECLARATION(VirtualMemory);
+SDEVICE_INTERNAL_ALIASES_DECLARATION(VirtualMemory);

@@ -17,18 +17,18 @@ SDEVICE_INIT_DATA_FORWARD_DECLARATION(VirtualMemory);
 
 typedef struct
 {
-   void       *Data;
-   const void *CallContext;
-   size_t      Offset;
-   size_t      Size;
+   void                            *Data;
+   const void                      *CallContext;
+   VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE Offset;
+   VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE Size;
 } VirtualMemorySDeviceChunkReadParameters;
 
 typedef struct
 {
-   const void *Data;
-   const void *CallContext;
-   size_t      Offset;
-   size_t      Size;
+   const void                      *Data;
+   const void                      *CallContext;
+   VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE Offset;
+   VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE Size;
 } VirtualMemorySDeviceChunkWriteParameters;
 
 typedef struct VirtualMemorySDeviceChunk VirtualMemorySDeviceChunk;
@@ -40,8 +40,8 @@ struct VirtualMemorySDeviceChunk
    VirtualMemorySDeviceChunkStatus (* Write)(SDEVICE_HANDLE(VirtualMemory)                  *handle,
                                              const VirtualMemorySDeviceChunk                *chunk,
                                              const VirtualMemorySDeviceChunkWriteParameters *parameters);
-   const void *Context;
-   size_t      Size;
+   const void                      *Context;
+   VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE Size;
 };
 
 SDEVICE_INIT_DATA_DECLARATION(VirtualMemory)
@@ -57,18 +57,18 @@ SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer);
 
 typedef struct
 {
-   const void *Data;
-   const void *CallContext;
-   uintptr_t   Address;
-   size_t      Size;
+   const void                         *Data;
+   const void                         *CallContext;
+   VIRTUAL_MEMORY_SDEVICE_ADDRESS_TYPE Address;
+   VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE    Size;
 } VirtualMemorySDeviceWriteParameters;
 
 typedef struct
 {
-   void       *Data;
-   const void *CallContext;
-   uintptr_t   Address;
-   size_t      Size;
+   void                               *Data;
+   const void                         *CallContext;
+   VIRTUAL_MEMORY_SDEVICE_ADDRESS_TYPE Address;
+   VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE    Size;
 } VirtualMemorySDeviceReadParameters;
 
 VirtualMemorySDeviceChunkStatus VirtualMemorySDeviceRead(SDEVICE_HANDLE(VirtualMemory)            *handle,

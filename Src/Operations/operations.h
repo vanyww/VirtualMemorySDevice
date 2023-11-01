@@ -2,8 +2,6 @@
 
 #include "helpers.h"
 
-#include "SDeviceCore/common.h"
-
 #include <memory.h>
 
 static ChunkStatusInternal PerformMemoryOperation(ThisHandle               *handle,
@@ -11,12 +9,12 @@ static ChunkStatusInternal PerformMemoryOperation(ThisHandle               *hand
                                                   const OperationParameters parameters)
 {
    ChunkStatusInternal status;
-   size_t size = parameters.AsCommon->Size;
+   SizeType size = parameters.AsCommon->Size;
 
    if(size > 0)
    {
-      uintptr_t lastAddress,
-                firstAddress = parameters.AsCommon->Address;
+      AddressType lastAddress,
+                  firstAddress = parameters.AsCommon->Address;
 
       if(TRY_ADD_INT_CHECKED(firstAddress, size - 1, &lastAddress) && lastAddress <= handle->Runtime->HighestAddress)
       {

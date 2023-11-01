@@ -21,8 +21,8 @@ static inline void InitializeThisHandleRuntimeData(ThisHandle *handle)
    size_t chunksCount = handle->Init->ChunksCount;
 
 #if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
-   uintptr_t highestAddress = 0;
-   uintptr_t *chunkAddressMap = SDeviceMalloc(sizeof(uintptr_t[chunksCount]));
+   AddressType highestAddress = 0;
+   AddressType *chunkAddressMap = SDeviceMalloc(sizeof(AddressType[chunksCount]));
 
    for(size_t i = 0; i < chunksCount - 1; i++)
    {
@@ -39,7 +39,7 @@ static inline void InitializeThisHandleRuntimeData(ThisHandle *handle)
       .ChunkAddressMap = chunkAddressMap
    };
 #else
-   uintptr_t highestAddress = chunks[0].Size - 1;
+   AddressType highestAddress = chunks[0].Size - 1;
 
    for(size_t i = 1; i < chunksCount; i++)
       SDeviceEvalAssert(TRY_ADD_INT_CHECKED(highestAddress, chunks[i].Size, &highestAddress),);
