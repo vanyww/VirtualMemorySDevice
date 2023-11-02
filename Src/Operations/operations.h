@@ -38,10 +38,10 @@ static ChunkStatusInternal PerformMemoryOperation(ThisHandle               *hand
 
             do
             {
+               memoryReference.Chunk++;
                size -= chunkParameters.AsCommon.Size;
                chunkParameters.AsCommon.Data += chunkParameters.AsCommon.Size;
                chunkParameters.AsCommon.Size = MIN(memoryReference.Chunk->Size, size);
-               memoryReference.Chunk++;
 
                status = operation(handle, memoryReference.Chunk, &chunkParameters);
             }
