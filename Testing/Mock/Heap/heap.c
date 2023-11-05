@@ -2,7 +2,8 @@
 
 #include <stdlib.h>
 
-void * SDeviceMalloc(size_t size)
+
+void* SDeviceMalloc(size_t size)
 {
    void *memory = malloc(size);
 
