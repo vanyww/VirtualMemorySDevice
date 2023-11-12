@@ -4,8 +4,6 @@
 
 static MemoryReference FindMemoryReference(ThisHandle *handle, uintptr_t address)
 {
-   SDeviceDebugAssert(address <= handle->Runtime->HighestAddress);
-
 #if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
    size_t leftChunkIdx = 0,
           rightChunkIdx = handle->Init->ChunksCount - 1;
