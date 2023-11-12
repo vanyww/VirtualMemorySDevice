@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDeviceCore/core.h"
+#include "config.h"
 
 typedef enum
 {
@@ -27,6 +27,6 @@ typedef enum
 
 typedef struct
 {
-   uintptr_t                       Address;
-   VirtualMemorySDeviceChunkStatus ChunkStatus;
+   VIRTUAL_MEMORY_SDEVICE_ADDRESS_TYPE Address;
+   VirtualMemorySDeviceChunkStatus     ChunkStatus;
 } VirtualMemorySDeviceOperationStatusLogExtras;

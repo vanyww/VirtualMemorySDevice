@@ -3,6 +3,8 @@
 #include "SDeviceCore/config.h"
 #include "SDeviceCore/common.h"
 
+#include <stdint.h>
+
 #if !defined(VIRTUAL_MEMORY_SDEVICE_USE_EXTERNAL_CONFIG) || defined(DOXYGEN)
    #define VIRTUAL_MEMORY_SDEVICE_USE_EXTERNAL_CONFIG false
 #endif
