@@ -1,8 +1,8 @@
 #pragma once
 
-#include "log.h"
-#include "config.h"
 #include "dependencies.h"
+#include "config.h"
+#include "log.h"
 
 /* 074c9afa-6248-11ee-8c95-0492264b1031 */
 #define VIRTUAL_MEMORY_SDEVICE_UUID_HIGH 0x074c9afa624811ee
