@@ -92,6 +92,8 @@ SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer)
 
 #if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
    SDeviceFree(handle->Runtime->ChunkAddressMap);
+
+   handle->Runtime->ChunkAddressMap = NULL;
 #endif
 
    SDeviceFreeHandle(handle);
