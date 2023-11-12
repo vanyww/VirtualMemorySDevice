@@ -18,12 +18,12 @@ typedef enum
 } VirtualMemorySDeviceChunkStatus;
 
 #define VIRTUAL_MEMORY_SDEVICE_IS_VALID_CHUNK_STATUS(value) (                                                          \
-{                                                                                                                      \
-   __auto_type _value = (value);                                                                                       \
-   _value == VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK              ||                                                    \
-   _value == VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_VALIDATION_FAIL ||                                                    \
-   _value == VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_PROCESSING_FAIL;                                                      \
-})
+   {                                                                                                                   \
+      __auto_type _value = (value);                                                                                    \
+      _value == VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK              ||                                                 \
+      _value == VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_VALIDATION_FAIL ||                                                 \
+      _value == VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_PROCESSING_FAIL;                                                   \
+   })
 
 typedef struct
 {
