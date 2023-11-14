@@ -102,8 +102,9 @@ SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer)
 
 ChunkStatusInternal VirtualMemorySDeviceRead(ThisHandle *handle, const ReadParametersInternal *parameters)
 {
-   SDeviceAssert(parameters != NULL);
    SDeviceAssert(IS_VALID_THIS_HANDLE(handle));
+
+   SDeviceAssert(parameters != NULL);
 
    SDeviceAssert(parameters->Data != NULL || parameters->Size == 0);
 
@@ -112,8 +113,9 @@ ChunkStatusInternal VirtualMemorySDeviceRead(ThisHandle *handle, const ReadParam
 
 ChunkStatusInternal VirtualMemorySDeviceWrite(ThisHandle *handle, const WriteParametersInternal *parameters)
 {
-   SDeviceAssert(parameters != NULL);
    SDeviceAssert(IS_VALID_THIS_HANDLE(handle));
+
+   SDeviceAssert(parameters != NULL);
 
    SDeviceAssert(parameters->Data != NULL || parameters->Size == 0);
 
