@@ -75,7 +75,7 @@ static ChunkStatusInternal ReadChunk(ThisHandle                     *handle,
       SDeviceAssert(VIRTUAL_MEMORY_SDEVICE_IS_VALID_CHUNK_STATUS(status));
 
       if(status != VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK)
-         LogReadFailStatus(handle, FindChunkAddress(handle, chunk), status);
+         LogReadFailStatus(handle, FindChunkAddress(handle, chunk));
    }
    else
    {
@@ -99,7 +99,7 @@ static ChunkStatusInternal WriteChunk(ThisHandle                     *handle,
       SDeviceAssert(VIRTUAL_MEMORY_SDEVICE_IS_VALID_CHUNK_STATUS(status));
 
       if(status != VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK)
-         LogWriteFailStatus(handle, FindChunkAddress(handle, chunk), status);
+         LogWriteFailStatus(handle, FindChunkAddress(handle, chunk));
    }
    else
    {

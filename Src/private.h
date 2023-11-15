@@ -14,21 +14,20 @@
                                    &SDEVICE_IDENTITY_BLOCK(VirtualMemory));                                            \
    })
 
-#define LogOperationStatus(handle, status, address, chunkStatus) (                                                     \
+#define LogOperationStatus(handle, status, address) (                                                                  \
    {                                                                                                                   \
       VirtualMemorySDeviceOperationStatusLogExtras _extras =                                                           \
       {                                                                                                                \
-         .Address     = (address),                                                                                     \
-         .ChunkStatus = (chunkStatus)                                                                                  \
+         .Address = (address)                                                                                          \
       };                                                                                                               \
       SDeviceLogStatusWithExtras(handle, status, &_extras, sizeof(_extras));                                           \
    })
 
-#define LogReadFailStatus(handle, address, chunkStatus)                                                                \
-   LogOperationStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_READ_FAIL, address, chunkStatus)
+#define LogReadFailStatus(handle, address)                                                                             \
+   LogOperationStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_READ_FAIL, address)
 
-#define LogWriteFailStatus(handle, address, chunkStatus)                                                               \
-   LogOperationStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_WRITE_FAIL, address, chunkStatus)
+#define LogWriteFailStatus(handle, address)                                                                            \
+   LogOperationStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_WRITE_FAIL, address)
 
 typedef VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE SizeType;
 typedef VIRTUAL_MEMORY_SDEVICE_ADDRESS_TYPE AddressType;

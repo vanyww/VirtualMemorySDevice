@@ -28,5 +28,4 @@ typedef enum
 typedef struct
 {
    VIRTUAL_MEMORY_SDEVICE_ADDRESS_TYPE Address;
-   VirtualMemorySDeviceChunkStatus     ChunkStatus;
 } VirtualMemorySDeviceOperationStatusLogExtras;
