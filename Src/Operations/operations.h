@@ -6,7 +6,8 @@
 
 static ChunkStatusInternal PerformMemoryOperation(ThisHandle               *handle,
                                                   ChunkOperation            operation,
-                                                  const OperationParameters parameters)
+                                                  const OperationParameters parameters,
+                                                  const void               *context)
 {
    ChunkStatusInternal status;
    SizeType size = parameters.AsCommon->Size;
@@ -26,11 +27,10 @@ static ChunkStatusInternal PerformMemoryOperation(ThisHandle               *hand
               .Data        = parameters.AsCommon->Data,
               .Offset      = memoryReference.Offset,
               .Size        = MIN(memoryReference.Chunk->Size - memoryReference.Offset, size),
-              .CallContext = parameters.AsCommon->CallContext
             }
          };
 
-         status = operation(handle, memoryReference.Chunk, &chunkParameters);
+         status = operation(handle, memoryReference.Chunk, &chunkParameters, context);
 
          if(status == VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK && size > chunkParameters.AsCommon.Size)
          {
@@ -43,7 +43,7 @@ static ChunkStatusInternal PerformMemoryOperation(ThisHandle               *hand
                chunkParameters.AsCommon.Data += chunkParameters.AsCommon.Size;
                chunkParameters.AsCommon.Size = MIN(memoryReference.Chunk->Size, size);
 
-               status = operation(handle, memoryReference.Chunk, &chunkParameters);
+               status = operation(handle, memoryReference.Chunk, &chunkParameters, context);
             }
             while(status == VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK && size > chunkParameters.AsCommon.Size);
          }
@@ -64,13 +64,14 @@ static ChunkStatusInternal PerformMemoryOperation(ThisHandle               *hand
 
 static ChunkStatusInternal ReadChunk(ThisHandle                     *handle,
                                      const ChunkInternal            *chunk,
-                                     const ChunkOperationParameters *parameters)
+                                     const ChunkOperationParameters *parameters,
+                                     const void                     *context)
 {
    ChunkStatusInternal status;
 
    if(chunk->Read != NULL)
    {
-      status = chunk->Read(handle, chunk, &parameters->AsRead);
+      status = chunk->Read(handle, chunk, &parameters->AsRead, context);
 
       SDeviceAssert(VIRTUAL_MEMORY_SDEVICE_IS_VALID_CHUNK_STATUS(status));
 
@@ -88,13 +89,14 @@ static ChunkStatusInternal ReadChunk(ThisHandle                     *handle,
 
 static ChunkStatusInternal WriteChunk(ThisHandle                     *handle,
                                       const ChunkInternal            *chunk,
-                                      const ChunkOperationParameters *parameters)
+                                      const ChunkOperationParameters *parameters,
+                                      const void                     *context)
 {
    ChunkStatusInternal status;
 
    if(chunk->Write != NULL)
    {
-      status = chunk->Write(handle, chunk, &parameters->AsWrite);
+      status = chunk->Write(handle, chunk, &parameters->AsWrite, context);
 
       SDeviceAssert(VIRTUAL_MEMORY_SDEVICE_IS_VALID_CHUNK_STATUS(status));
 
