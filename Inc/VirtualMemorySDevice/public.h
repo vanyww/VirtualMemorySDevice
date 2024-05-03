@@ -33,15 +33,15 @@ typedef struct VirtualMemorySDeviceChunk VirtualMemorySDeviceChunk;
 
 struct VirtualMemorySDeviceChunk
 {
-   VirtualMemorySDeviceChunkStatus (* Read)(SDEVICE_HANDLE(VirtualMemory)                 *handle,
-                                            const VirtualMemorySDeviceChunk               *chunk,
-                                            const VirtualMemorySDeviceChunkReadParameters *parameters,
-                                            const void                                    *context);
+   SDevicePropertyStatus (* Read)(SDEVICE_HANDLE(VirtualMemory)                 *handle,
+                                  const VirtualMemorySDeviceChunk               *chunk,
+                                  const VirtualMemorySDeviceChunkReadParameters *parameters,
+                                  const void                                    *context);
 
-   VirtualMemorySDeviceChunkStatus (* Write)(SDEVICE_HANDLE(VirtualMemory)                  *handle,
-                                             const VirtualMemorySDeviceChunk                *chunk,
-                                             const VirtualMemorySDeviceChunkWriteParameters *parameters,
-                                             const void                                     *context);
+   SDevicePropertyStatus (* Write)(SDEVICE_HANDLE(VirtualMemory)                  *handle,
+                                   const VirtualMemorySDeviceChunk                *chunk,
+                                   const VirtualMemorySDeviceChunkWriteParameters *parameters,
+                                   const void                                     *context);
 
    const void                      *Context;
    VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE Size;
@@ -72,10 +72,10 @@ typedef struct
    VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE    Size;
 } VirtualMemorySDeviceReadParameters;
 
-VirtualMemorySDeviceChunkStatus VirtualMemorySDeviceRead(SDEVICE_HANDLE(VirtualMemory)            *handle,
-                                                         const VirtualMemorySDeviceReadParameters *parameters,
-                                                         const void                               *context);
+SDevicePropertyStatus VirtualMemorySDeviceRead(SDEVICE_HANDLE(VirtualMemory)            *handle,
+                                               const VirtualMemorySDeviceReadParameters *parameters,
+                                               const void                               *context);
 
-VirtualMemorySDeviceChunkStatus VirtualMemorySDeviceWrite(SDEVICE_HANDLE(VirtualMemory)             *handle,
-                                                          const VirtualMemorySDeviceWriteParameters *parameters,
-                                                          const void                                *context);
+SDevicePropertyStatus VirtualMemorySDeviceWrite(SDEVICE_HANDLE(VirtualMemory)             *handle,
+                                                const VirtualMemorySDeviceWriteParameters *parameters,
+                                                const void                                *context);

@@ -28,10 +28,10 @@ TEST(Read, FirstChunk)
 
    uint8_t expectedData[] = { 0x11 };
    uint8_t readData[sizeof(expectedData)];
-   const VirtualMemorySDeviceReadParameters parameters = { readData, NULL, 0, sizeof(readData) };
+   const VirtualMemorySDeviceReadParameters parameters = { readData, 0, sizeof(readData) };
 
    WriteChunkBuffer(0, expectedData, sizeof(expectedData));
-   TEST_ASSERT_EQUAL(VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK, VirtualMemorySDeviceRead(handle, &parameters));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceRead(handle, &parameters, NULL));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.Data, sizeof(readData));
 }
 
@@ -52,13 +52,12 @@ TEST(Read, LastChunk)
    const VirtualMemorySDeviceReadParameters parameters =
    {
       readData,
-      NULL,
       CHUNK_SIZE*(CHUNKS_COUNT - 1),
       sizeof(readData)
    };
 
    WriteChunkBuffer(CHUNKS_COUNT - 1, expectedData, sizeof(expectedData));
-   TEST_ASSERT_EQUAL(VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK, VirtualMemorySDeviceRead(handle, &parameters));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceRead(handle, &parameters, NULL));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.Data, sizeof(readData));
 }
 
@@ -79,13 +78,12 @@ TEST(Read, MiddleChunk)
    const VirtualMemorySDeviceReadParameters parameters =
    {
       readData,
-      NULL,
-      CHUNK_SIZE*(CHUNKS_COUNT/2 - 1),
+      CHUNK_SIZE*(CHUNKS_COUNT / 2 - 1),
       sizeof(readData)
    };
 
    WriteChunkBuffer(CHUNKS_COUNT/2 - 1, expectedData, sizeof(expectedData));
-   TEST_ASSERT_EQUAL(VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK, VirtualMemorySDeviceRead(handle, &parameters));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceRead(handle, &parameters, NULL));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.Data, sizeof(readData));
 }
 
@@ -104,10 +102,10 @@ TEST(Read, AddressInsideChunk)
    uint8_t fillingData[] = { [0 ... CHUNK_SIZE - 1] = 0x11 };
    uint8_t expectedData[] = { [0 ... CHUNK_SIZE/2 - 1] = 0x11 };
    uint8_t readData[sizeof(expectedData)];
-   const VirtualMemorySDeviceReadParameters parameters = { readData, NULL, CHUNK_SIZE/2, sizeof(readData) };
+   const VirtualMemorySDeviceReadParameters parameters = { readData, CHUNK_SIZE / 2, sizeof(readData) };
 
    WriteChunkBuffer(0, fillingData, sizeof(fillingData));
-   TEST_ASSERT_EQUAL(VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK, VirtualMemorySDeviceRead(handle, &parameters));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceRead(handle, &parameters, NULL));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.Data, sizeof(readData));
 }
 
@@ -129,10 +127,10 @@ TEST(Read, LargerThanOneChunkSize)
       [CHUNK_SIZE ... 2*CHUNK_SIZE - 1] = 0x22
    };
    uint8_t readData[sizeof(expectedData)];
-   const VirtualMemorySDeviceReadParameters parameters = { readData, NULL, 0, sizeof(readData) };
+   const VirtualMemorySDeviceReadParameters parameters = { readData, 0, sizeof(readData) };
 
    WriteChunkBuffer(0, expectedData, sizeof(expectedData));
-   TEST_ASSERT_EQUAL(VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK, VirtualMemorySDeviceRead(handle, &parameters));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceRead(handle, &parameters, NULL));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.Data, sizeof(readData));
 }
 
@@ -159,10 +157,10 @@ TEST(Read, LargerThanOneChunkSizeWithAddressInsideChunk)
          [CHUNK_SIZE/2 ... CHUNK_SIZE - 1] = 0x22
    };
    uint8_t readData[sizeof(expectedData)];
-   const VirtualMemorySDeviceReadParameters parameters = { readData, NULL, CHUNK_SIZE/2, sizeof(readData) };
+   const VirtualMemorySDeviceReadParameters parameters = { readData, CHUNK_SIZE / 2, sizeof(readData) };
 
    WriteChunkBuffer(0, fillingData, sizeof(fillingData));
-   TEST_ASSERT_EQUAL(VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK, VirtualMemorySDeviceRead(handle, &parameters));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceRead(handle, &parameters, NULL));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.Data, sizeof(readData));
 }
 
@@ -180,9 +178,8 @@ TEST(Read, WrongAddress)
 
    char *readDataStub[1];
    size_t address = SIZE_MAX;
-   const VirtualMemorySDeviceReadParameters parameters = { readDataStub, NULL, address, sizeof(readDataStub) };
-   TEST_ASSERT_EQUAL(VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_VALIDATION_FAIL,
-                     VirtualMemorySDeviceRead(handle, &parameters));
+   const VirtualMemorySDeviceReadParameters parameters = { readDataStub, address, sizeof(readDataStub) };
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_VALIDATION_ERROR, VirtualMemorySDeviceRead(handle, &parameters, NULL));
 }
 
 TEST_GROUP_RUNNER(Read)

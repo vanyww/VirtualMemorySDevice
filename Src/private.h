@@ -7,9 +7,7 @@
 #define IS_VALID_THIS_HANDLE(handle) (                                                                                 \
    {                                                                                                                   \
       ThisHandle *_handle = (handle);                                                                                  \
-      _handle != NULL          &&                                                                                      \
-      _handle->Init != NULL    &&                                                                                      \
-      _handle->Runtime != NULL &&                                                                                      \
+      _handle != NULL &&                                                                                               \
       SDeviceCompareIdentityBlocks(SDeviceGetHandleIdentityBlock(_handle),                                             \
                                    &SDEVICE_IDENTITY_BLOCK(VirtualMemory));                                            \
    })
@@ -20,6 +18,7 @@
       {                                                                                                                \
          .Address = (address)                                                                                          \
       };                                                                                                               \
+                                                                                                                       \
       SDeviceLogStatusWithExtras(handle, status, &_extras, sizeof(_extras));                                           \
    })
 
@@ -33,7 +32,6 @@ typedef VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE SizeType;
 typedef VIRTUAL_MEMORY_SDEVICE_ADDRESS_TYPE AddressType;
 
 typedef VirtualMemorySDeviceChunk ChunkInternal;
-typedef VirtualMemorySDeviceChunkStatus ChunkStatusInternal;
 typedef VirtualMemorySDeviceReadParameters ReadParametersInternal;
 typedef VirtualMemorySDeviceWriteParameters WriteParametersInternal;
 typedef VirtualMemorySDeviceChunkReadParameters ChunkReadParametersInternal;

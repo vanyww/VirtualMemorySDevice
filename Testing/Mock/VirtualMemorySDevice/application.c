@@ -31,22 +31,24 @@ void ReadChunkBuffer(size_t chunkIdx, uint8_t *dst, size_t size)
    memcpy(dst, &ChunksBuffers[chunkIdx][0], size);
 }
 
-static VirtualMemorySDeviceChunkStatus ChunkReadCallback(SDEVICE_HANDLE(VirtualMemory) *handle,
-                                                         const VirtualMemorySDeviceChunk *chunk,
-                                                         const VirtualMemorySDeviceChunkReadParameters *parameters)
+static SDevicePropertyStatus ChunkReadCallback(SDEVICE_HANDLE(VirtualMemory) *handle,
+                                               const VirtualMemorySDeviceChunk *chunk,
+                                               const VirtualMemorySDeviceChunkReadParameters *parameters,
+                                               const void *context)
 {
    size_t chunkIndex = ((const ChunkContext *)chunk->Context)->ChunkIdx;
    memcpy(parameters->Data, &ChunksBuffers[chunkIndex][parameters->Offset], parameters->Size);
-   return VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK;
+   return SDEVICE_PROPERTY_STATUS_OK;
 }
 
-static VirtualMemorySDeviceChunkStatus ChunkWriteCallback(SDEVICE_HANDLE(VirtualMemory) *handle,
-                                                          const VirtualMemorySDeviceChunk *chunk,
-                                                          const VirtualMemorySDeviceChunkWriteParameters *parameters)
+static SDevicePropertyStatus ChunkWriteCallback(SDEVICE_HANDLE(VirtualMemory) *handle,
+                                                const VirtualMemorySDeviceChunk *chunk,
+                                                const VirtualMemorySDeviceChunkWriteParameters *parameters,
+                                                const void *context)
 {
    size_t chunkIndex = ((const ChunkContext *)chunk->Context)->ChunkIdx;
    memcpy(&ChunksBuffers[chunkIndex][parameters->Offset], parameters->Data, parameters->Size);
-   return VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK;
+   return SDEVICE_PROPERTY_STATUS_OK;
 }
 
 static const VirtualMemorySDeviceChunk Chunks[] =

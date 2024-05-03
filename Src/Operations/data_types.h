@@ -34,7 +34,7 @@ typedef union
    ChunkWriteParametersInternal AsWrite;
 } ChunkOperationParameters;
 
-typedef ChunkStatusInternal (* ChunkOperation)(ThisHandle                     *handle,
-                                               const ChunkInternal            *chunk,
-                                               const ChunkOperationParameters *parameters,
-                                               const void                     *context);
+typedef SDevicePropertyStatus (* ChunkOperation)(ThisHandle                     *handle,
+                                                 const ChunkInternal            *chunk,
+                                                 const ChunkOperationParameters *parameters,
+                                                 const void                     *context);

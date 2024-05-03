@@ -90,7 +90,7 @@ void SDeviceProcessLogStatus(const void *handle, const void *extras, size_t extr
       return;
    }
 
-   VirtualMemorySDeviceChunkStatus chunkStatus;
+   SDevicePropertyStatus chunkStatus;
    memcpy(&chunkStatus, extras, extrasSize);
 
    char *pChunkStatus = NULL;
@@ -98,17 +98,17 @@ void SDeviceProcessLogStatus(const void *handle, const void *extras, size_t extr
 
    switch (chunkStatus)
    {
-      case VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_VALIDATION_FAIL:
+      case SDEVICE_PROPERTY_STATUS_VALIDATION_ERROR:
          pChunkStatus = ": "ENUM_TO_STRING(VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_VALIDATION_FAIL);
          chunkStatusSize = sizeof(": "ENUM_TO_STRING(VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_VALIDATION_FAIL));
          break;
 
-      case VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_PROCESSING_FAIL:
+      case SDEVICE_PROPERTY_STATUS_PROCESSING_ERROR:
          pChunkStatus = ": "ENUM_TO_STRING(VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_PROCESSING_FAIL);
          chunkStatusSize = sizeof(": "ENUM_TO_STRING(VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_PROCESSING_FAIL));
          break;
 
-      case VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK:
+      case SDEVICE_PROPERTY_STATUS_OK:
          pChunkStatus = ": "ENUM_TO_STRING(VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK);
          chunkStatusSize = sizeof(": "ENUM_TO_STRING(VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK));
          break;

@@ -4,12 +4,12 @@
 
 #include <memory.h>
 
-static ChunkStatusInternal PerformMemoryOperation(ThisHandle               *handle,
-                                                  ChunkOperation            operation,
-                                                  const OperationParameters parameters,
-                                                  const void               *context)
+static SDevicePropertyStatus PerformMemoryOperation(ThisHandle               *handle,
+                                                    ChunkOperation            operation,
+                                                    const OperationParameters parameters,
+                                                    const void               *context)
 {
-   ChunkStatusInternal status;
+   SDevicePropertyStatus status;
    SizeType size = parameters.AsCommon->Size;
 
    if(size > 0)
@@ -32,7 +32,7 @@ static ChunkStatusInternal PerformMemoryOperation(ThisHandle               *hand
 
          status = operation(handle, memoryReference.Chunk, &chunkParameters, context);
 
-         if(status == VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK && size > chunkParameters.AsCommon.Size)
+         if(status == SDEVICE_PROPERTY_STATUS_OK && size > chunkParameters.AsCommon.Size)
          {
             chunkParameters.AsCommon.Offset = 0;
 
@@ -45,67 +45,67 @@ static ChunkStatusInternal PerformMemoryOperation(ThisHandle               *hand
 
                status = operation(handle, memoryReference.Chunk, &chunkParameters, context);
             }
-            while(status == VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK && size > chunkParameters.AsCommon.Size);
+            while(status == SDEVICE_PROPERTY_STATUS_OK && size > chunkParameters.AsCommon.Size);
          }
       }
       else
       {
          SDeviceLogStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_WRONG_ADDRESS);
-         status = VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_VALIDATION_FAIL;
+         status = SDEVICE_PROPERTY_STATUS_VALIDATION_ERROR;
       }
    }
    else
    {
-      status = VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK;
+      status = SDEVICE_PROPERTY_STATUS_OK;
    }
 
    return status;
 }
 
-static ChunkStatusInternal ReadChunk(ThisHandle                     *handle,
-                                     const ChunkInternal            *chunk,
-                                     const ChunkOperationParameters *parameters,
-                                     const void                     *context)
+static SDevicePropertyStatus ReadChunk(ThisHandle                     *handle,
+                                       const ChunkInternal            *chunk,
+                                       const ChunkOperationParameters *parameters,
+                                       const void                     *context)
 {
-   ChunkStatusInternal status;
+   SDevicePropertyStatus status;
 
    if(chunk->Read != NULL)
    {
       status = chunk->Read(handle, chunk, &parameters->AsRead, context);
 
-      SDeviceAssert(VIRTUAL_MEMORY_SDEVICE_IS_VALID_CHUNK_STATUS(status));
+      SDeviceAssert(SDEVICE_IS_VALID_PROPERTY_OPERATION_STATUS(status));
 
-      if(status != VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK)
+      if(status != SDEVICE_PROPERTY_STATUS_OK)
          LogReadFailStatus(handle, FindChunkAddress(handle, chunk));
    }
    else
    {
       memset(parameters->AsRead.Data, VIRTUAL_MEMORY_SDEVICE_FILLER_DATA_VALUE, parameters->AsRead.Size);
-      status = VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK;
+      status = SDEVICE_PROPERTY_STATUS_OK;
    }
 
    return status;
 }
 
-static ChunkStatusInternal WriteChunk(ThisHandle                     *handle,
-                                      const ChunkInternal            *chunk,
-                                      const ChunkOperationParameters *parameters,
-                                      const void                     *context)
+static SDevicePropertyStatus WriteChunk(ThisHandle                     *handle,
+                                        const ChunkInternal            *chunk,
+                                        const ChunkOperationParameters *parameters,
+                                        const void                     *context)
 {
-   ChunkStatusInternal status;
+   SDevicePropertyStatus status;
 
    if(chunk->Write != NULL)
    {
       status = chunk->Write(handle, chunk, &parameters->AsWrite, context);
 
-      SDeviceAssert(VIRTUAL_MEMORY_SDEVICE_IS_VALID_CHUNK_STATUS(status));
+      SDeviceAssert(SDEVICE_IS_VALID_PROPERTY_OPERATION_STATUS(status));
 
-      if(status != VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK)
+      if(status != SDEVICE_PROPERTY_STATUS_OK)
          LogWriteFailStatus(handle, FindChunkAddress(handle, chunk));
    }
    else
    {
-      status = VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK;
+      status = SDEVICE_PROPERTY_STATUS_OK;
    }
 
    return status;
