@@ -2,25 +2,17 @@
 
 #include "VirtualMemorySDevice/public.h"
 
-#include "SDeviceCore/errors.h"
+#define IS_VALID_THIS_HANDLE(handle) SDEVICE_IS_VALID_HANDLE(VirtualMemory, handle)
 
-#define IS_VALID_THIS_HANDLE(handle) (                                                                                 \
+#define LogOperationStatus(handle, status, address)                                                                    \
    {                                                                                                                   \
-      ThisHandle *_handle = (handle);                                                                                  \
-      _handle != NULL &&                                                                                               \
-      SDeviceCompareIdentityBlocks(SDeviceGetHandleIdentityBlock(_handle),                                             \
-                                   &SDEVICE_IDENTITY_BLOCK(VirtualMemory));                                            \
-   })
-
-#define LogOperationStatus(handle, status, address) (                                                                  \
-   {                                                                                                                   \
-      VirtualMemorySDeviceOperationStatusLogExtras _extras =                                                           \
+      VirtualMemorySDeviceOperationStatusLogExtras $$extras =                                                          \
       {                                                                                                                \
          .Address = (address)                                                                                          \
       };                                                                                                               \
                                                                                                                        \
-      SDeviceLogStatusWithExtras(handle, status, &_extras, sizeof(_extras));                                           \
-   })
+      SDeviceLogStatusWithExtras(handle, status, &$$extras, sizeof($$extras));                                         \
+   }
 
 #define LogReadFailStatus(handle, address)                                                                             \
    LogOperationStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_READ_FAIL, address)
@@ -28,23 +20,38 @@
 #define LogWriteFailStatus(handle, address)                                                                            \
    LogOperationStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_WRITE_FAIL, address)
 
-typedef VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE SizeType;
-typedef VIRTUAL_MEMORY_SDEVICE_ADDRESS_TYPE AddressType;
+#if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
+   #define GET_HIGHEST_ADDRESS(handle) (                                                                               \
+      {                                                                                                                \
+         __auto_type $$handle = (handle);                                                                              \
+         size_t      $$lastIdx = $$handle->Init->ChunksCount - 1;                                                      \
+                                                                                                                       \
+         $$handle->Runtime->AddressMap[$$lastIdx] + ($$handle->Init->Chunks[$$lastIdx].Size - 1);                      \
+      })
+#else
+   #define GET_HIGHEST_ADDRESS(handle) ((handle)->Runtime->HighestAddress)
+#endif
 
-typedef VirtualMemorySDeviceChunk ChunkInternal;
-typedef VirtualMemorySDeviceReadParameters ReadParametersInternal;
-typedef VirtualMemorySDeviceWriteParameters WriteParametersInternal;
-typedef VirtualMemorySDeviceChunkReadParameters ChunkReadParametersInternal;
-typedef VirtualMemorySDeviceChunkWriteParameters ChunkWriteParametersInternal;
+typedef VirtualMemorySDeviceChunk ThisChunk;
+
+typedef VirtualMemorySDeviceSizeType ThisSizeType;
+typedef VirtualMemorySDeviceAddressType ThisAddressType;
+
+typedef VirtualMemorySDeviceReadParameters ThisReadParameters;
+typedef VirtualMemorySDeviceWriteParameters ThisWriteParameters;
+
+typedef VirtualMemorySDeviceChunkReadParameters ThisChunkReadParameters;
+typedef VirtualMemorySDeviceChunkWriteParameters ThisChunkWriteParameters;
 
 SDEVICE_RUNTIME_DATA_FORWARD_DECLARATION(VirtualMemory);
 
 SDEVICE_RUNTIME_DATA_DECLARATION(VirtualMemory)
 {
 #if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
-   AddressType *ChunkAddressMap;
+   ThisAddressType *AddressMap;
+#else
+   ThisAddressType  HighestAddress;
 #endif
-   AddressType  HighestAddress;
 };
 
 SDEVICE_HANDLE_DECLARATION(VirtualMemory);

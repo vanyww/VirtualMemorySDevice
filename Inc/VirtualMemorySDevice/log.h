@@ -2,6 +2,8 @@
 
 #include "config.h"
 
+#include "SDeviceCore/errors.h"
+
 typedef enum
 {
    VIRTUAL_MEMORY_SDEVICE_STATUS_OK,

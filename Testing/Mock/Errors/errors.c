@@ -12,7 +12,7 @@
 
 static bool AreLogsShowing = true;
 static bool ProcessAssertFailMustBeCalled;
-static SDEVICE_HANDLE(VirtualMemory) *AssertFailhandle;
+static SDEVICE_HANDLE(VirtualMemory) *AssertFailHandle;
 
 void ShowLog(bool value)
 {
@@ -26,13 +26,13 @@ void AssertionMustBeFail(bool value)
 
 void SetAssertFailHandle(SDEVICE_HANDLE(VirtualMemory) *handle)
 {
-   AssertFailhandle = handle;
+   AssertFailHandle = handle;
 }
 
 void SDeviceProcessAssertFail(char *file, int line)
 {
-   if(AssertFailhandle != NULL)
-         SDeviceFree(AssertFailhandle);
+   if(AssertFailHandle != NULL)
+         SDeviceFreeMemory(AssertFailHandle);
 
    if(ProcessAssertFailMustBeCalled)
    {

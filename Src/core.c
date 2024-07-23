@@ -1,63 +1,44 @@
-#include "Operations/operations.h"
+#include "private.h"
+#include "Io/io.h"
+#include "Io/Chunks/read.h"
+#include "Io/Chunks/write.h"
 
 #include "SDeviceCore/heap.h"
 
-SDEVICE_IDENTITY_BLOCK_DEFINITION(VirtualMemory,
-                                  ((const SDeviceUuid)
-                                  {
-                                     .High = VIRTUAL_MEMORY_SDEVICE_UUID_HIGH,
-                                     .Low  = VIRTUAL_MEMORY_SDEVICE_UUID_LOW
-                                  }),
-                                  ((const SDeviceVersion)
-                                  {
-                                     .Major = VIRTUAL_MEMORY_SDEVICE_VERSION_MAJOR,
-                                     .Minor = VIRTUAL_MEMORY_SDEVICE_VERSION_MINOR,
-                                     .Patch = VIRTUAL_MEMORY_SDEVICE_VERSION_PATCH
-                                  }));
+SDEVICE_IDENTITY_BLOCK_DEFINITION(
+      VirtualMemory,
+      ((const SDeviceUuid)
+      {
+         .High = VIRTUAL_MEMORY_SDEVICE_UUID_HIGH,
+         .Low  = VIRTUAL_MEMORY_SDEVICE_UUID_LOW
+      }),
+      ((const SDeviceVersion)
+      {
+         .Major = VIRTUAL_MEMORY_SDEVICE_VERSION_MAJOR,
+         .Minor = VIRTUAL_MEMORY_SDEVICE_VERSION_MINOR,
+         .Patch = VIRTUAL_MEMORY_SDEVICE_VERSION_PATCH
+      }));
 
-static inline void InitializeThisHandleRuntimeData(ThisHandle *handle)
+typedef union
 {
-   const ChunkInternal *chunks = handle->Init->Chunks;
-   size_t chunksCount = handle->Init->ChunksCount;
+   OperationParametersBase AsBase;
+   ThisReadParameters      AsThis;
+} ReadOperationParameters;
 
-#if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
-   AddressType highestAddress = 0;
-   AddressType *chunkAddressMap = SDeviceMalloc(sizeof(AddressType[chunksCount]));
-
-   for(size_t i = 0; i < chunksCount - 1; i++)
-   {
-      chunkAddressMap[i] = highestAddress;
-      SDeviceEvalAssert(TRY_ADD_INT_CHECKED(highestAddress, chunks[i].Size, &highestAddress),);
-   }
-
-   chunkAddressMap[chunksCount - 1] = highestAddress;
-   SDeviceEvalAssert(TRY_ADD_INT_CHECKED(highestAddress, chunks[chunksCount - 1].Size - 1, &highestAddress),);
-
-   *handle->Runtime = (ThisRuntimeData)
-   {
-      .HighestAddress  = highestAddress,
-      .ChunkAddressMap = chunkAddressMap
-   };
-#else
-   AddressType highestAddress = chunks[0].Size - 1;
-
-   for(size_t i = 1; i < chunksCount; i++)
-      SDeviceEvalAssert(TRY_ADD_INT_CHECKED(highestAddress, chunks[i].Size, &highestAddress),);
-
-   *handle->Runtime = (ThisRuntimeData)
-   {
-      .HighestAddress = highestAddress
-   };
-#endif
-}
+typedef union
+{
+   OperationParametersBase AsBase;
+   ThisWriteParameters     AsThis;
+} WriteOperationParameters;
 
 SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, context)
 {
-   SDeviceAssert(init != NULL);
+   SDeviceAssert(init);
 
    const ThisInitData *_init = init;
 
-   SDeviceAssert(_init->Chunks != NULL);
+   SDeviceAssert(_init->Chunks);
+
    SDeviceAssert(_init->ChunksCount > 0);
 
 #if SDEVICE_USE_ASSERT
@@ -65,8 +46,9 @@ SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, contex
       SDeviceAssert(_init->Chunks[i].Size > 0);
 #endif
 
-   ThisHandle *handle = SDeviceAllocHandle(sizeof(ThisInitData), sizeof(ThisRuntimeData));
-   handle->Header = (SDeviceHandleHeader)
+   ThisHandle *instance = SDeviceAllocateHandle(sizeof(*instance->Init), sizeof(*instance->Runtime));
+
+   instance->Header = (SDeviceHandleHeader)
    {
       .Context       = context,
       .OwnerHandle   = owner,
@@ -74,16 +56,39 @@ SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, contex
       .LatestStatus  = VIRTUAL_MEMORY_SDEVICE_STATUS_OK,
       .Identifier    = identifier
    };
-   *handle->Init = *_init;
 
-   InitializeThisHandleRuntimeData(handle);
+   *instance->Init = *_init;
 
-   return handle;
+#if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
+   ThisAddressType *addressMap = SDeviceAllocateMemory(sizeof(ThisAddressType[_init->ChunksCount]));
+
+   addressMap[0] = 0;
+
+   for(size_t i = 1; i < _init->ChunksCount; i++)
+      SDeviceEvalAssert(TRY_ADD_INT_CHECKED(addressMap[i - 1], _init->Chunks[i].Size, &addressMap[i]),);
+
+   *instance->Runtime = (ThisRuntimeData)
+   {
+      .AddressMap = addressMap
+   };
+#else
+   ThisAddressType address = _init->Chunks[0].Size - 1;
+
+   for(size_t i = 1; i < _init->ChunksCount; i++)
+      SDeviceEvalAssert(TRY_ADD_INT_CHECKED(address, _init->Chunks[i].Size, &address),);
+
+   *instance->Runtime = (ThisRuntimeData)
+   {
+      .HighestAddress = address
+   };
+#endif
+
+   return instance;
 }
 
 SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer)
 {
-   SDeviceAssert(handlePointer != NULL);
+   SDeviceAssert(handlePointer);
 
    ThisHandle **_handlePointer = handlePointer;
    ThisHandle *handle = *_handlePointer;
@@ -91,37 +96,41 @@ SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer)
    SDeviceAssert(IS_VALID_THIS_HANDLE(handle));
 
 #if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
-   SDeviceFree(handle->Runtime->ChunkAddressMap);
-
-   handle->Runtime->ChunkAddressMap = NULL;
+   SDeviceFreeMemory(handle->Runtime->AddressMap);
+   handle->Runtime->AddressMap = NULL;
 #endif
 
    SDeviceFreeHandle(handle);
+
    *_handlePointer = NULL;
 }
 
-SDevicePropertyStatus VirtualMemorySDeviceRead(ThisHandle                   *handle,
-                                               const ReadParametersInternal *parameters,
-                                               const void                   *context)
+SDevicePropertyStatus VirtualMemorySDeviceRead(
+      ThisHandle               *handle,
+      const ThisReadParameters *parameters,
+      const void               *context)
 {
    SDeviceAssert(IS_VALID_THIS_HANDLE(handle));
 
-   SDeviceAssert(parameters != NULL);
+   SDeviceAssert(parameters);
 
-   SDeviceAssert(parameters->Data != NULL || parameters->Size == 0);
+   SDeviceAssert(parameters->Data || parameters->Size <= 0);
 
-   return PerformMemoryOperation(handle, ReadChunk, parameters, context);
+   return PerformOperation(
+         handle, IO_OPERATION(Read), &((const ReadOperationParameters *)parameters)->AsBase, context);
 }
 
-SDevicePropertyStatus VirtualMemorySDeviceWrite(ThisHandle                    *handle,
-                                                const WriteParametersInternal *parameters,
-                                                const void                    *context)
+SDevicePropertyStatus VirtualMemorySDeviceWrite(
+      ThisHandle                *handle,
+      const ThisWriteParameters *parameters,
+      const void                *context)
 {
    SDeviceAssert(IS_VALID_THIS_HANDLE(handle));
 
-   SDeviceAssert(parameters != NULL);
+   SDeviceAssert(parameters);
 
-   SDeviceAssert(parameters->Data != NULL || parameters->Size == 0);
+   SDeviceAssert(parameters->Data || parameters->Size <= 0);
 
-   return PerformMemoryOperation(handle, WriteChunk, parameters, context);
+   return PerformOperation(
+         handle, IO_OPERATION(Write), &((const WriteOperationParameters *)parameters)->AsBase, context);
 }
