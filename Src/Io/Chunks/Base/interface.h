@@ -18,7 +18,7 @@ typedef struct
 #define IO_OPERATION_POINTER(pointer_name)                                                                             \
    IO_OPERATION_RETURN_VALUE (* pointer_name) IO_OPERATION_ARGUMENTS(,,,)
 #define IO_OPERATION(operation_name)                                                                                   \
-   $VirtualMemorySDevice##operation_name##Operation
+   VirtualMemorySDeviceInternal##operation_name##Operation
 #define IO_OPERATION_DECLARATION(operation_name, handle_name, chunk_name, parameters_name, context_name)               \
    IO_OPERATION_RETURN_VALUE                                                                                           \
    IO_OPERATION(operation_name)                                                                                        \

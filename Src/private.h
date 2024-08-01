@@ -6,12 +6,12 @@
 
 #define LogOperationStatus(handle, status, address)                                                                    \
    {                                                                                                                   \
-      VirtualMemorySDeviceOperationStatusLogExtras $$extras =                                                          \
+      VirtualMemorySDeviceOperationStatusLogExtras _extras =                                                           \
       {                                                                                                                \
          .Address = (address)                                                                                          \
       };                                                                                                               \
                                                                                                                        \
-      SDeviceLogStatusWithExtras(handle, status, &$$extras, sizeof($$extras));                                         \
+      SDeviceLogStatusWithExtras(handle, status, &_extras, sizeof(_extras));                                           \
    }
 
 #define LogReadFailStatus(handle, address)                                                                             \
@@ -23,10 +23,10 @@
 #if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
    #define GET_HIGHEST_ADDRESS(handle) (                                                                               \
       {                                                                                                                \
-         __auto_type $$handle = (handle);                                                                              \
-         size_t      $$lastIdx = $$handle->Init->ChunksCount - 1;                                                      \
+         __auto_type _mHandle = (handle);                                                                              \
+         size_t _mLastIdx = _mHandle->Init->ChunksCount - 1;                                                           \
                                                                                                                        \
-         $$handle->Runtime->AddressMap[$$lastIdx] + ($$handle->Init->Chunks[$$lastIdx].Size - 1);                      \
+         _mHandle->Runtime->AddressMap[_mLastIdx] + (_mHandle->Init->Chunks[_mLastIdx].Size - 1);                      \
       })
 #else
    #define GET_HIGHEST_ADDRESS(handle) ((handle)->Runtime->HighestAddress)
