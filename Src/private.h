@@ -14,11 +14,11 @@
       SDeviceLogStatusWithExtras(handle, status, &_extras, sizeof(_extras));                                           \
    }
 
-#define LogReadFailStatus(handle, address)                                                                             \
-   LogOperationStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_READ_FAIL, address)
+#define LogGetFailStatus(handle, address)                                                                              \
+   LogOperationStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_GET_FAIL, address)
 
-#define LogWriteFailStatus(handle, address)                                                                            \
-   LogOperationStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_WRITE_FAIL, address)
+#define LogSetFailStatus(handle, address)                                                                              \
+   LogOperationStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_SET_FAIL, address)
 
 #if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
    #define GET_HIGHEST_ADDRESS(handle) (                                                                               \
@@ -37,11 +37,11 @@ typedef VirtualMemorySDeviceChunk ThisChunk;
 typedef VirtualMemorySDeviceSizeType ThisSizeType;
 typedef VirtualMemorySDeviceAddressType ThisAddressType;
 
-typedef VirtualMemorySDeviceReadParameters ThisReadParameters;
-typedef VirtualMemorySDeviceWriteParameters ThisWriteParameters;
+typedef VirtualMemorySDeviceGetParameters ThisGetParameters;
+typedef VirtualMemorySDeviceSetParameters ThisSetParameters;
 
-typedef VirtualMemorySDeviceChunkReadParameters ThisChunkReadParameters;
-typedef VirtualMemorySDeviceChunkWriteParameters ThisChunkWriteParameters;
+typedef VirtualMemorySDeviceChunkGetParameters ThisChunkGetParameters;
+typedef VirtualMemorySDeviceChunkSetParameters ThisChunkSetParameters;
 
 SDEVICE_RUNTIME_DATA_FORWARD_DECLARATION(VirtualMemory);
 

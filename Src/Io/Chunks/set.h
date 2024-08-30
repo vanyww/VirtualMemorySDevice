@@ -4,22 +4,22 @@
 typedef union
 {
    ChunkOperationParametersBase AsBase;
-   ThisChunkWriteParameters     AsThis;
+   ThisChunkSetParameters       AsThis;
 } ChunkWriteOperationParameters;
 
-IO_OPERATION_DECLARATION(Write, handle, chunk, parameters, context)
+IO_OPERATION_DECLARATION(Set, handle, chunk, parameters, context)
 {
-   if(chunk->Write)
+   if(chunk->Set)
    {
-      const ThisChunkWriteParameters *_parameters =
+      const ThisChunkSetParameters *_parameters =
             &((const ChunkWriteOperationParameters *)parameters)->AsThis;
 
-      SDevicePropertyStatus status = chunk->Write(handle, chunk, _parameters, context);
+      SDevicePropertyStatus status = chunk->Set(handle, chunk, _parameters, context);
 
       SDeviceAssert(SDEVICE_IS_VALID_PROPERTY_OPERATION_STATUS(status));
 
       if(status != SDEVICE_PROPERTY_STATUS_OK)
-         LogWriteFailStatus(handle, FindChunkAddress(handle, chunk));
+         LogSetFailStatus(handle, FindChunkAddress(handle, chunk));
 
       return status;
    }

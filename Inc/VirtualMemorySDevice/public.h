@@ -23,28 +23,28 @@ typedef struct
    void                        *Data;
    VirtualMemorySDeviceSizeType Offset;
    VirtualMemorySDeviceSizeType Size;
-} VirtualMemorySDeviceChunkReadParameters;
+} VirtualMemorySDeviceChunkGetParameters;
 
 typedef struct
 {
    const void                  *Data;
    VirtualMemorySDeviceSizeType Offset;
    VirtualMemorySDeviceSizeType Size;
-} VirtualMemorySDeviceChunkWriteParameters;
+} VirtualMemorySDeviceChunkSetParameters;
 
 typedef struct VirtualMemorySDeviceChunk
 {
-   SDevicePropertyStatus (* Read)(
-         SDEVICE_HANDLE(VirtualMemory)                 *handle,
-         const struct VirtualMemorySDeviceChunk        *chunk,
-         const VirtualMemorySDeviceChunkReadParameters *parameters,
-         const void                                    *context);
+   SDevicePropertyStatus (* Get)(
+         SDEVICE_HANDLE(VirtualMemory)                *handle,
+         const struct VirtualMemorySDeviceChunk       *chunk,
+         const VirtualMemorySDeviceChunkGetParameters *parameters,
+         const void                                   *context);
 
-   SDevicePropertyStatus (* Write)(
-         SDEVICE_HANDLE(VirtualMemory)                  *handle,
-         const struct VirtualMemorySDeviceChunk         *chunk,
-         const VirtualMemorySDeviceChunkWriteParameters *parameters,
-         const void                                     *context);
+   SDevicePropertyStatus (* Set)(
+         SDEVICE_HANDLE(VirtualMemory)                *handle,
+         const struct VirtualMemorySDeviceChunk       *chunk,
+         const VirtualMemorySDeviceChunkSetParameters *parameters,
+         const void                                   *context);
 
    const void                  *Context;
    VirtualMemorySDeviceSizeType Size;
@@ -55,14 +55,14 @@ typedef struct
    const void                     *Data;
    VirtualMemorySDeviceAddressType Address;
    VirtualMemorySDeviceSizeType    Size;
-} VirtualMemorySDeviceWriteParameters;
+} VirtualMemorySDeviceSetParameters;
 
 typedef struct
 {
    void                           *Data;
    VirtualMemorySDeviceAddressType Address;
    VirtualMemorySDeviceSizeType    Size;
-} VirtualMemorySDeviceReadParameters;
+} VirtualMemorySDeviceGetParameters;
 
 SDEVICE_INIT_DATA_DECLARATION(VirtualMemory)
 {
@@ -75,12 +75,12 @@ SDEVICE_IDENTITY_BLOCK_DECLARATION(VirtualMemory);
 SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, context);
 SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer);
 
-SDevicePropertyStatus VirtualMemorySDeviceRead(
+SDevicePropertyStatus VirtualMemorySDeviceGet(
       SDEVICE_HANDLE(VirtualMemory)            *handle,
-      const VirtualMemorySDeviceReadParameters *parameters,
+      const VirtualMemorySDeviceGetParameters *parameters,
       const void                               *context);
 
-SDevicePropertyStatus VirtualMemorySDeviceWrite(
+SDevicePropertyStatus VirtualMemorySDeviceSet(
       SDEVICE_HANDLE(VirtualMemory)             *handle,
-      const VirtualMemorySDeviceWriteParameters *parameters,
+      const VirtualMemorySDeviceSetParameters *parameters,
       const void                                *context);

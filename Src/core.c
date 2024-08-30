@@ -1,7 +1,7 @@
 #include "private.h"
 #include "Io/io.h"
-#include "Io/Chunks/read.h"
-#include "Io/Chunks/write.h"
+#include "Io/Chunks/get.h"
+#include "Io/Chunks/set.h"
 
 #include "SDeviceCore/heap.h"
 
@@ -22,14 +22,14 @@ SDEVICE_IDENTITY_BLOCK_DEFINITION(
 typedef union
 {
    OperationParametersBase AsBase;
-   ThisReadParameters      AsThis;
-} ReadOperationParameters;
+   ThisGetParameters       AsThis;
+} GetOperationParameters;
 
 typedef union
 {
    OperationParametersBase AsBase;
-   ThisWriteParameters     AsThis;
-} WriteOperationParameters;
+   ThisSetParameters       AsThis;
+} SetOperationParameters;
 
 SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, context)
 {
@@ -105,9 +105,9 @@ SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer)
    *_handlePointer = NULL;
 }
 
-SDevicePropertyStatus VirtualMemorySDeviceRead(
+SDevicePropertyStatus VirtualMemorySDeviceGet(
       ThisHandle               *handle,
-      const ThisReadParameters *parameters,
+      const ThisGetParameters *parameters,
       const void               *context)
 {
    SDeviceAssert(IS_VALID_THIS_HANDLE(handle));
@@ -117,12 +117,12 @@ SDevicePropertyStatus VirtualMemorySDeviceRead(
    SDeviceAssert(parameters->Data || parameters->Size <= 0);
 
    return PerformOperation(
-         handle, IO_OPERATION(Read), &((const ReadOperationParameters *)parameters)->AsBase, context);
+         handle, IO_OPERATION(Get), &((const GetOperationParameters *)parameters)->AsBase, context);
 }
 
-SDevicePropertyStatus VirtualMemorySDeviceWrite(
+SDevicePropertyStatus VirtualMemorySDeviceSet(
       ThisHandle                *handle,
-      const ThisWriteParameters *parameters,
+      const ThisSetParameters *parameters,
       const void                *context)
 {
    SDeviceAssert(IS_VALID_THIS_HANDLE(handle));
@@ -132,5 +132,5 @@ SDevicePropertyStatus VirtualMemorySDeviceWrite(
    SDeviceAssert(parameters->Data || parameters->Size <= 0);
 
    return PerformOperation(
-         handle, IO_OPERATION(Write), &((const WriteOperationParameters *)parameters)->AsBase, context);
+         handle, IO_OPERATION(Set), &((const SetOperationParameters *)parameters)->AsBase, context);
 }
