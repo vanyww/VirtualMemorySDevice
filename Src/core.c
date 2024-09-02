@@ -19,18 +19,6 @@ SDEVICE_IDENTITY_BLOCK_DEFINITION(
          .Patch = VIRTUAL_MEMORY_SDEVICE_VERSION_PATCH
       }));
 
-typedef union
-{
-   OperationParametersBase AsBase;
-   ThisGetParameters       AsThis;
-} GetOperationParameters;
-
-typedef union
-{
-   OperationParametersBase AsBase;
-   ThisSetParameters       AsThis;
-} SetOperationParameters;
-
 SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, context)
 {
    SDeviceAssert(init);
@@ -105,32 +93,30 @@ SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer)
    *_handlePointer = NULL;
 }
 
-SDevicePropertyStatus VirtualMemorySDeviceGet(
-      ThisHandle               *handle,
-      const ThisGetParameters *parameters,
-      const void               *context)
+SDevicePropertyStatus VirtualMemorySDeviceReadSpan(
+      ThisHandle                    *handle,
+      const ThisOperationParameters *parameters,
+      const void                    *context)
 {
    SDeviceAssert(IS_VALID_THIS_HANDLE(handle));
 
    SDeviceAssert(parameters);
 
-   SDeviceAssert(parameters->Data || parameters->Size <= 0);
+   SDeviceAssert(parameters->AsAny.Data || parameters->AsAny.Size <= 0);
 
-   return PerformOperation(
-         handle, IO_OPERATION(Get), &((const GetOperationParameters *)parameters)->AsBase, context);
+   return InvokeSpanOperation(handle, IO_OPERATION(Get), parameters, context);
 }
 
-SDevicePropertyStatus VirtualMemorySDeviceSet(
-      ThisHandle                *handle,
-      const ThisSetParameters *parameters,
-      const void                *context)
+SDevicePropertyStatus VirtualMemorySDeviceWriteSpan(
+      ThisHandle                    *handle,
+      const ThisOperationParameters *parameters,
+      const void                    *context)
 {
    SDeviceAssert(IS_VALID_THIS_HANDLE(handle));
 
    SDeviceAssert(parameters);
 
-   SDeviceAssert(parameters->Data || parameters->Size <= 0);
+   SDeviceAssert(parameters->AsAny.Data || parameters->AsAny.Size <= 0);
 
-   return PerformOperation(
-         handle, IO_OPERATION(Set), &((const SetOperationParameters *)parameters)->AsBase, context);
+   return InvokeSpanOperation(handle, IO_OPERATION(Set), parameters, context);
 }

@@ -3,16 +3,9 @@
 
 #include <memory.h>
 
-typedef union
-{
-   ChunkOperationParametersBase AsBase;
-   ThisChunkGetParameters       AsThis;
-} ChunkReadOperationParameters;
-
 IO_OPERATION_DECLARATION(Get, handle, chunk, parameters, context)
 {
-   const ThisChunkGetParameters *_parameters =
-         &((const ChunkReadOperationParameters *)parameters)->AsThis;
+   const ThisChunkGetParameters *_parameters = &parameters->AsGet;
 
    if(chunk->Get)
    {
@@ -21,7 +14,7 @@ IO_OPERATION_DECLARATION(Get, handle, chunk, parameters, context)
       SDeviceAssert(SDEVICE_IS_VALID_PROPERTY_OPERATION_STATUS(status));
 
       if(status != SDEVICE_PROPERTY_STATUS_OK)
-         LogGetFailStatus(handle, FindChunkAddress(handle, chunk));
+         LogChunkGetFailStatus(handle, FindChunkAddress(handle, chunk));
 
       return status;
    }

@@ -2,19 +2,25 @@
 
 #include "../../../private.h"
 
-typedef struct
+typedef union
 {
-   void        *Data;
-   ThisSizeType Offset;
-   ThisSizeType Size;
-} ChunkOperationParametersBase;
+   struct
+   {
+      const void  *Data;
+      ThisSizeType Offset;
+      ThisSizeType Size;
+   } AsAny;
+
+   ThisChunkGetParameters       AsGet;
+   ThisChunkSetParameters       AsSet;
+} ChunkOperationParameters;
 
 #define IO_OPERATION_RETURN_VALUE SDevicePropertyStatus
 #define IO_OPERATION_ARGUMENTS(handle_name, chunk_name, parameters_name, context_name) (                               \
-   ThisHandle                         *handle_name,                                                                    \
-   const ThisChunk                    *chunk_name,                                                                     \
-   const ChunkOperationParametersBase *parameters_name,                                                                \
-   const void                         *context_name)
+   ThisHandle                     *handle_name,                                                                        \
+   const ThisChunk                *chunk_name,                                                                         \
+   const ChunkOperationParameters *parameters_name,                                                                    \
+   const void                     *context_name)
 #define IO_OPERATION_POINTER(pointer_name)                                                                             \
    IO_OPERATION_RETURN_VALUE (* pointer_name) IO_OPERATION_ARGUMENTS(,,,)
 #define IO_OPERATION(operation_name)                                                                                   \
