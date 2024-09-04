@@ -52,8 +52,8 @@ SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, contex
 
    addressMap[0] = 0;
 
-   for(size_t i = 1; i < _init->ChunksCount; i++)
-      SDeviceEvalAssert(TRY_ADD_INT_CHECKED(addressMap[i - 1], _init->Chunks[i].Size, &addressMap[i]),);
+   for(size_t i = 0; i < _init->ChunksCount - 1; i++)
+      SDeviceEvalAssert(TRY_ADD_INT_CHECKED(addressMap[i], _init->Chunks[i].Size, &addressMap[i + 1]),);
 
    *instance->Runtime = (ThisRuntimeData)
    {
