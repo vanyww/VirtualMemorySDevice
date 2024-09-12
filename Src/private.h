@@ -6,12 +6,12 @@
 
 #define LogOperationStatus(handle, status, address)                                                                    \
    {                                                                                                                   \
-      VirtualMemorySDeviceOperationStatusLogExtras _extras =                                                           \
+      VirtualMemorySDeviceOperationStatusLogExtras _mExtras =                                                          \
       {                                                                                                                \
          .Address = (address)                                                                                          \
       };                                                                                                               \
                                                                                                                        \
-      SDeviceLogStatusWithExtras(handle, status, &_extras, sizeof(_extras));                                           \
+      SDeviceLogStatusWithExtras(handle, status, &_mExtras, sizeof(_mExtras));                                         \
    }
 
 #define LogChunkGetFailStatus(handle, address)                                                                         \
@@ -37,6 +37,7 @@ typedef VirtualMemorySDeviceChunk ThisChunk;
 typedef VirtualMemorySDeviceSizeType ThisSizeType;
 typedef VirtualMemorySDeviceAddressType ThisAddressType;
 
+typedef VirtualMemorySDeviceOperationType ThisOperationType;
 typedef VirtualMemorySDeviceOperationParameters ThisOperationParameters;
 
 typedef VirtualMemorySDeviceChunkGetParameters ThisChunkGetParameters;
@@ -54,4 +55,5 @@ SDEVICE_RUNTIME_DATA_DECLARATION(VirtualMemory)
 };
 
 SDEVICE_HANDLE_DECLARATION(VirtualMemory);
+
 SDEVICE_INTERNAL_ALIASES_DECLARATION(VirtualMemory);

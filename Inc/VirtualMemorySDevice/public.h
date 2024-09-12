@@ -50,28 +50,41 @@ typedef struct VirtualMemorySDeviceChunk
    VirtualMemorySDeviceSizeType Size;
 } VirtualMemorySDeviceChunk;
 
-typedef union
+typedef enum
 {
-   struct
-   {
-      const void                     *Data;
-      VirtualMemorySDeviceAddressType Address;
-      VirtualMemorySDeviceSizeType    Size;
-   } AsAny;
+   VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_READ,
+   VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_WRITE,
 
-   struct
-   {
-      const void                     *Data;
-      VirtualMemorySDeviceAddressType Address;
-      VirtualMemorySDeviceSizeType    Size;
-   } AsWriteSpan;
+   VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPES_COUNT
+} VirtualMemorySDeviceOperationType;
 
-   struct
+typedef struct
+{
+   VirtualMemorySDeviceOperationType Type;
+
+   union
    {
-      void                           *Data;
-      VirtualMemorySDeviceAddressType Address;
-      VirtualMemorySDeviceSizeType    Size;
-   } AsReadSpan;
+      struct
+      {
+         const void                     *Data;
+         VirtualMemorySDeviceAddressType Address;
+         VirtualMemorySDeviceSizeType    Size;
+      } AsAny;
+
+      struct
+      {
+         void                           *Data;
+         VirtualMemorySDeviceAddressType Address;
+         VirtualMemorySDeviceSizeType    Size;
+      } AsRead;
+
+      struct
+      {
+         const void                     *Data;
+         VirtualMemorySDeviceAddressType Address;
+         VirtualMemorySDeviceSizeType    Size;
+      } AsWrite;
+   };
 } VirtualMemorySDeviceOperationParameters;
 
 SDEVICE_INIT_DATA_DECLARATION(VirtualMemory)
@@ -85,12 +98,7 @@ SDEVICE_IDENTITY_BLOCK_DECLARATION(VirtualMemory);
 SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, context);
 SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer);
 
-SDevicePropertyStatus VirtualMemorySDeviceReadSpan(
-      SDEVICE_HANDLE(VirtualMemory)                 *handle,
+SDevicePropertyStatus VirtualMemorySDeviceInvokeOperation(
+      SDEVICE_HANDLE(VirtualMemory)                     *handle,
       const VirtualMemorySDeviceOperationParameters *parameters,
-      const void                                    *context);
-
-SDevicePropertyStatus VirtualMemorySDeviceWriteSpan(
-      SDEVICE_HANDLE(VirtualMemory)                 *handle,
-      const VirtualMemorySDeviceOperationParameters *parameters,
-      const void                                    *context);
+      const void                                        *context);

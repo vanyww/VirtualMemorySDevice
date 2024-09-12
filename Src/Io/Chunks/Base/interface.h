@@ -11,8 +11,8 @@ typedef union
       ThisSizeType Size;
    } AsAny;
 
-   ThisChunkGetParameters       AsGet;
-   ThisChunkSetParameters       AsSet;
+   ThisChunkGetParameters AsGet;
+   ThisChunkSetParameters AsSet;
 } ChunkOperationParameters;
 
 #define IO_OPERATION_RETURN_VALUE SDevicePropertyStatus
