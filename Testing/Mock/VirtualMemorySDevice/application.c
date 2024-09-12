@@ -31,9 +31,9 @@ void ReadChunkBuffer(size_t chunkIdx, uint8_t *dst, size_t size)
    memcpy(dst, &ChunksBuffers[chunkIdx][0], size);
 }
 
-static SDevicePropertyStatus ChunkReadCallback(SDEVICE_HANDLE(VirtualMemory) *handle,
+static SDevicePropertyStatus ChunkGetCallback(SDEVICE_HANDLE(VirtualMemory) *handle,
                                                const VirtualMemorySDeviceChunk *chunk,
-                                               const VirtualMemorySDeviceChunkReadParameters *parameters,
+                                               const VirtualMemorySDeviceChunkGetParameters *parameters,
                                                const void *context)
 {
    size_t chunkIndex = ((const ChunkContext *)chunk->Context)->ChunkIdx;
@@ -41,9 +41,9 @@ static SDevicePropertyStatus ChunkReadCallback(SDEVICE_HANDLE(VirtualMemory) *ha
    return SDEVICE_PROPERTY_STATUS_OK;
 }
 
-static SDevicePropertyStatus ChunkWriteCallback(SDEVICE_HANDLE(VirtualMemory) *handle,
+static SDevicePropertyStatus ChunkSetCallback(SDEVICE_HANDLE(VirtualMemory) *handle,
                                                 const VirtualMemorySDeviceChunk *chunk,
-                                                const VirtualMemorySDeviceChunkWriteParameters *parameters,
+                                                const VirtualMemorySDeviceChunkSetParameters *parameters,
                                                 const void *context)
 {
    size_t chunkIndex = ((const ChunkContext *)chunk->Context)->ChunkIdx;
@@ -54,38 +54,38 @@ static SDevicePropertyStatus ChunkWriteCallback(SDEVICE_HANDLE(VirtualMemory) *h
 static const VirtualMemorySDeviceChunk Chunks[] =
 {
    {
-      .Read = ChunkReadCallback,
-      .Write = ChunkWriteCallback,
+      .Get = ChunkGetCallback,
+      .Set = ChunkSetCallback,
       .Context = &(const ChunkContext){ 0 },
       .Size = CHUNK_SIZE
    },
    {
-      .Read = ChunkReadCallback,
-      .Write = ChunkWriteCallback,
+      .Get = ChunkGetCallback,
+      .Set = ChunkSetCallback,
       .Context = &(const ChunkContext){ 1 },
       .Size = CHUNK_SIZE
    },
    {
-      .Read = ChunkReadCallback,
-      .Write = ChunkWriteCallback,
+      .Get = ChunkGetCallback,
+      .Set = ChunkSetCallback,
       .Context = &(const ChunkContext){ 2 },
       .Size = CHUNK_SIZE
    },
    {
-      .Read = ChunkReadCallback,
-      .Write = ChunkWriteCallback,
+      .Get = ChunkGetCallback,
+      .Set = ChunkSetCallback,
       .Context = &(const ChunkContext){ 3 },
       .Size = CHUNK_SIZE
    },
    {
-      .Read = ChunkReadCallback,
-      .Write = ChunkWriteCallback,
+      .Get = ChunkGetCallback,
+      .Set = ChunkSetCallback,
       .Context = &(const ChunkContext){ 4 },
       .Size = CHUNK_SIZE
    },
    {
-      .Read = ChunkReadCallback,
-      .Write = ChunkWriteCallback,
+      .Get = ChunkGetCallback,
+      .Set = ChunkSetCallback,
       .Context = &(const ChunkContext){ 5 },
       .Size = CHUNK_SIZE
    }

@@ -28,9 +28,13 @@ TEST(Write, FirstChunk)
 
    uint8_t expectedData[] = { 0x11 };
    uint8_t writeData[sizeof(expectedData)];
-   const VirtualMemorySDeviceWriteParameters parameters = { expectedData, 0, sizeof(expectedData) };
+   const VirtualMemorySDeviceOperationParameters parameters =
+   {
+      .Type    = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_WRITE,
+      .AsWrite = { expectedData, 0, sizeof(expectedData) }
+   };
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceWrite(handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(handle, &parameters, NULL));
    ReadChunkBuffer(0, writeData, sizeof(writeData));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, writeData, sizeof(expectedData));
 }
@@ -49,12 +53,13 @@ TEST(Write, LastChunk)
 
    uint8_t expectedData[] = { 0x11 };
    uint8_t writeData[sizeof(expectedData)];
-   const VirtualMemorySDeviceWriteParameters parameters =
-      { expectedData,
-        CHUNK_SIZE * (CHUNKS_COUNT - 1),
-        sizeof(expectedData) };
+   const VirtualMemorySDeviceOperationParameters parameters =
+   {
+      .Type    = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_WRITE,
+      .AsWrite = { expectedData, CHUNK_SIZE * (CHUNKS_COUNT - 1), sizeof(expectedData) }
+   };
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceWrite(handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(handle, &parameters, NULL));
    ReadChunkBuffer(CHUNKS_COUNT - 1, writeData, sizeof(writeData));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, writeData, sizeof(expectedData));
 }
@@ -73,14 +78,13 @@ TEST(Write, MiddleChunk)
 
    uint8_t expectedData[] = { 0x11 };
    uint8_t writeData[sizeof(expectedData)];
-   const VirtualMemorySDeviceWriteParameters parameters =
+   const VirtualMemorySDeviceOperationParameters parameters =
    {
-      expectedData,
-      CHUNK_SIZE * (CHUNKS_COUNT / 2 - 1),
-      sizeof(expectedData)
+      .Type    = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_WRITE,
+      .AsWrite = { expectedData, CHUNK_SIZE * (CHUNKS_COUNT / 2 - 1), sizeof(expectedData) }
    };
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceWrite(handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(handle, &parameters, NULL));
    ReadChunkBuffer(CHUNKS_COUNT / 2 - 1, writeData, sizeof(writeData));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, writeData, sizeof(expectedData));
 }
@@ -100,14 +104,13 @@ TEST(Write, AddressInsideChunk)
    uint8_t expectedData[] = { [0 ... CHUNK_SIZE/2 - 1] = 0x00, [CHUNK_SIZE/2 ... CHUNK_SIZE - 1] = 0x11 };
    uint8_t chunkData[sizeof(expectedData)];
    uint8_t fillingData[] = { [0 ... CHUNK_SIZE/2 - 1] = 0x11 };
-   const VirtualMemorySDeviceWriteParameters parameters =
+   const VirtualMemorySDeviceOperationParameters parameters =
    {
-      fillingData,
-      CHUNK_SIZE / 2,
-      sizeof(expectedData)
+      .Type    = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_WRITE,
+      .AsWrite = { fillingData, CHUNK_SIZE / 2, sizeof(expectedData) }
    };
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceWrite(handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(handle, &parameters, NULL));
    ReadChunkBuffer(0, chunkData, sizeof(chunkData));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, chunkData, sizeof(expectedData));
 }
@@ -126,9 +129,13 @@ TEST(Write, LargerThanOneChunkSize)
 
    uint8_t expectedData[] = { [0 ... CHUNK_SIZE - 1] = 0x11, [CHUNK_SIZE ... 2*CHUNK_SIZE - 1] = 0x22 };
    uint8_t writeData[sizeof(expectedData)];
-   const VirtualMemorySDeviceWriteParameters parameters = { expectedData, 0, sizeof(expectedData) };
+   const VirtualMemorySDeviceOperationParameters parameters =
+   {
+      .Type    = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_WRITE,
+      .AsWrite = { expectedData, 0, sizeof(expectedData) }
+   };
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceWrite(handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(handle, &parameters, NULL));
    ReadChunkBuffer(0, writeData, sizeof(writeData));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, writeData, sizeof(expectedData));
 }
@@ -154,14 +161,13 @@ TEST(Write, LargerThanOneChunkSizeWithAddressInsideChunk)
       [3*CHUNK_SIZE/2 ... 2*CHUNK_SIZE - 1] = 0x00
    };
    uint8_t chunksData [sizeof(expectedData)];
-   const VirtualMemorySDeviceWriteParameters parameters =
+   const VirtualMemorySDeviceOperationParameters parameters =
    {
-      fillingData,
-      CHUNK_SIZE / 2,
-      sizeof(fillingData)
+      .Type    = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_WRITE,
+      .AsWrite = { fillingData, CHUNK_SIZE / 2, sizeof(fillingData) }
    };
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceWrite(handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(handle, &parameters, NULL));
    ReadChunkBuffer(0, chunksData, sizeof(chunksData));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, chunksData, sizeof(expectedData));
 }
@@ -180,9 +186,13 @@ TEST(Write, WrongAddress)
 
    char *writeDataStub[1];
    size_t address = SIZE_MAX;
-   const VirtualMemorySDeviceWriteParameters parameters = { writeDataStub, address, sizeof(writeDataStub) };
+   const VirtualMemorySDeviceOperationParameters parameters =
+   {
+      .Type    = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_WRITE,
+      .AsWrite = { writeDataStub, address, sizeof(writeDataStub) }
+   };
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_VALIDATION_ERROR, VirtualMemorySDeviceWrite(handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_VALIDATION_ERROR, VirtualMemorySDeviceInvokeOperation(handle, &parameters, NULL));
 }
 
 TEST_GROUP_RUNNER(Write)
