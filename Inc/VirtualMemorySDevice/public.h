@@ -99,6 +99,6 @@ SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, contex
 SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer);
 
 SDevicePropertyStatus VirtualMemorySDeviceInvokeOperation(
-      SDEVICE_HANDLE(VirtualMemory)                     *handle,
+      SDEVICE_HANDLE(VirtualMemory)                 *handle,
       const VirtualMemorySDeviceOperationParameters *parameters,
-      const void                                        *context);
+      const void                                    *context);
