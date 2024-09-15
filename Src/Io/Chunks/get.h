@@ -3,13 +3,13 @@
 
 #include <memory.h>
 
-IO_OPERATION_DECLARATION(Get, handle, chunk, parameters, context)
+IO_OPERATION_DECLARATION(Get, handle, chunk, operationParameters, callParameters)
 {
-   const ThisChunkGetParameters *_parameters = &parameters->AsGet;
+   const ThisChunkGetParameters *_operationParameters = &operationParameters->AsGet;
 
    if(chunk->Get)
    {
-      SDevicePropertyStatus status = chunk->Get(handle, chunk, _parameters, context);
+      SDevicePropertyStatus status = chunk->Get(handle, chunk, _operationParameters, callParameters);
 
       SDeviceAssert(SDEVICE_IS_VALID_PROPERTY_OPERATION_STATUS(status));
 
@@ -19,7 +19,7 @@ IO_OPERATION_DECLARATION(Get, handle, chunk, parameters, context)
       return status;
    }
 
-   memset(_parameters->Data, VIRTUAL_MEMORY_SDEVICE_FILLER_DATA_VALUE, _parameters->Size);
+   memset(_operationParameters->Data, VIRTUAL_MEMORY_SDEVICE_FILLER_DATA_VALUE, _operationParameters->Size);
 
    return SDEVICE_PROPERTY_STATUS_OK;
 }

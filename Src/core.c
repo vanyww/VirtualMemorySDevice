@@ -102,22 +102,22 @@ SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer)
 
 SDevicePropertyStatus VirtualMemorySDeviceInvokeOperation(
       ThisHandle                                    *handle,
-      const VirtualMemorySDeviceOperationParameters *parameters,
-      const void                                    *context)
+      const VirtualMemorySDeviceOperationParameters *operationParameters,
+      const void                                    *callParameters)
 {
    SDeviceAssert(IS_VALID_THIS_HANDLE(handle));
 
-   SDeviceAssert(parameters);
+   SDeviceAssert(operationParameters);
 
-   SDeviceAssert(parameters->AsAny.Data || parameters->AsAny.Size <= 0);
+   SDeviceAssert(operationParameters->AsAny.Data || operationParameters->AsAny.Size <= 0);
 
    SDevicePropertyStatus status;
-   ThisSizeType size = parameters->AsAny.Size;
-   IO_OPERATION_POINTER(operation) = IoOperations[parameters->Type];
+   ThisSizeType size = operationParameters->AsAny.Size;
+   IO_OPERATION_POINTER(operation) = IoOperations[operationParameters->Type];
 
    if(size > 0)
    {
-      ThisAddressType lastAddress, firstAddress = parameters->AsAny.Address;
+      ThisAddressType lastAddress, firstAddress = operationParameters->AsAny.Address;
 
       if(TRY_ADD_INT_CHECKED(firstAddress, size - 1, &lastAddress) && lastAddress <= GET_HIGHEST_ADDRESS(handle))
       {
@@ -126,13 +126,13 @@ SDevicePropertyStatus VirtualMemorySDeviceInvokeOperation(
          {
             .AsAny =
             {
-               .Data   = parameters->AsAny.Data,
+               .Data   = operationParameters->AsAny.Data,
                .Offset = memoryReference.Offset,
                .Size   = MIN(memoryReference.Chunk->Size - memoryReference.Offset, size)
             }
          };
 
-         status = operation(handle, memoryReference.Chunk, &chunkParameters, context);
+         status = operation(handle, memoryReference.Chunk, &chunkParameters, callParameters);
 
          if(status == SDEVICE_PROPERTY_STATUS_OK && size > chunkParameters.AsAny.Size)
          {
@@ -145,7 +145,7 @@ SDevicePropertyStatus VirtualMemorySDeviceInvokeOperation(
                chunkParameters.AsAny.Data += chunkParameters.AsAny.Size;
                chunkParameters.AsAny.Size = MIN(memoryReference.Chunk->Size, size);
 
-               status = operation(handle, memoryReference.Chunk, &chunkParameters, context);
+               status = operation(handle, memoryReference.Chunk, &chunkParameters, callParameters);
             }
             while(status == SDEVICE_PROPERTY_STATUS_OK && size > chunkParameters.AsAny.Size);
          }
