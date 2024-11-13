@@ -1,97 +1,104 @@
 #pragma once
 
-#include "SDeviceCore/core.h"
+#include "config.h"
+#include "dependencies.h"
+#include "log.h"
 
-#include <stdbool.h>
+/* 074C9AFA-6248-11EE-8C95-0492264B1031 */
+#define VIRTUAL_MEMORY_SDEVICE_UUID_HIGH 0x074C9AFA624811EE
+#define VIRTUAL_MEMORY_SDEVICE_UUID_LOW  0x8C950492264B1031
 
-#if (SDEVICE_CORE_VERSION_MAJOR != 7) || (SDEVICE_CORE_VERSION_MINOR < 0)
-#error SDevice core version is incorrect.
-#endif
-
-#define VIRTUAL_MEMORY_SDEVICE_VERSION_MAJOR 1
+#define VIRTUAL_MEMORY_SDEVICE_VERSION_MAJOR 2
 #define VIRTUAL_MEMORY_SDEVICE_VERSION_MINOR 0
-#define VIRTUAL_MEMORY_SDEVICE_VERSION_PATCH 1
-#define VIRTUAL_MEMORY_SDEVICE_CORE_VERSION ((SDeviceVersion)                                                          \
-{                                                                                                                      \
-   .Major = VIRTUAL_MEMORY_SDEVICE_VERSION_MAJOR,                                                                      \
-   .Minor = VIRTUAL_MEMORY_SDEVICE_VERSION_MINOR,                                                                      \
-   .Patch = VIRTUAL_MEMORY_SDEVICE_VERSION_PATCH                                                                       \
-})
-
-typedef struct VirtualMemorySDeviceChunk VirtualMemorySDeviceChunk;
+#define VIRTUAL_MEMORY_SDEVICE_VERSION_PATCH 0
 
 SDEVICE_HANDLE_FORWARD_DECLARATION(VirtualMemory);
 SDEVICE_INIT_DATA_FORWARD_DECLARATION(VirtualMemory);
 
+typedef VIRTUAL_MEMORY_SDEVICE_SIZE_TYPE VirtualMemorySDeviceSizeType;
+typedef VIRTUAL_MEMORY_SDEVICE_ADDRESS_TYPE VirtualMemorySDeviceAddressType;
+
+typedef struct
+{
+   void                        *Data;
+   VirtualMemorySDeviceSizeType Offset;
+   VirtualMemorySDeviceSizeType Size;
+} VirtualMemorySDeviceChunkGetParameters;
+
+typedef struct
+{
+   const void                  *Data;
+   VirtualMemorySDeviceSizeType Offset;
+   VirtualMemorySDeviceSizeType Size;
+} VirtualMemorySDeviceChunkSetParameters;
+
+typedef struct VirtualMemorySDeviceChunk
+{
+   SDevicePropertyStatus (* Get)(
+         SDEVICE_HANDLE(VirtualMemory)                *handle,
+         const struct VirtualMemorySDeviceChunk       *chunk,
+         const VirtualMemorySDeviceChunkGetParameters *parameters,
+         const void                                   *context);
+
+   SDevicePropertyStatus (* Set)(
+         SDEVICE_HANDLE(VirtualMemory)                *handle,
+         const struct VirtualMemorySDeviceChunk       *chunk,
+         const VirtualMemorySDeviceChunkSetParameters *parameters,
+         const void                                   *context);
+
+   const void                  *Context;
+   VirtualMemorySDeviceSizeType Size;
+} VirtualMemorySDeviceChunk;
+
 typedef enum
 {
-   VIRTUAL_MEMORY_SDEVICE_STATUS_OK,
-   VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_OPERATION_FAIL,
-   VIRTUAL_MEMORY_SDEVICE_STATUS_WRONG_CHUNK_PARAMETERS,
-   VIRTUAL_MEMORY_SDEVICE_STATUS_WRONG_CHUNK_ADDRESS
-} VirtualMemorySDeviceStatus;
+   VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_READ,
+   VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_WRITE,
+
+   VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPES_COUNT
+} VirtualMemorySDeviceOperationType;
+
+typedef struct
+{
+   VirtualMemorySDeviceOperationType Type;
+
+   union
+   {
+      struct
+      {
+         const void                     *Data;
+         VirtualMemorySDeviceAddressType Address;
+         VirtualMemorySDeviceSizeType    Size;
+      } AsAny;
+
+      struct
+      {
+         void                           *Data;
+         VirtualMemorySDeviceAddressType Address;
+         VirtualMemorySDeviceSizeType    Size;
+      } AsRead;
+
+      struct
+      {
+         const void                     *Data;
+         VirtualMemorySDeviceAddressType Address;
+         VirtualMemorySDeviceSizeType    Size;
+      } AsWrite;
+   };
+} VirtualMemorySDeviceOperationParameters;
 
 SDEVICE_INIT_DATA_DECLARATION(VirtualMemory)
 {
    const VirtualMemorySDeviceChunk *Chunks;
-   size_t ChunksCount;
+   size_t                           ChunksCount;
 };
 
-SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, parent, identifier, context);
+SDEVICE_IDENTITY_BLOCK_DECLARATION(VirtualMemory);
+
+SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, context);
 SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer);
 
-typedef struct
-{
-   void *Data;
-   size_t Size;
-   intptr_t Offset;
-   const void *ChunkContext;
-   const void *CallContext;
-} VirtualMemorySDeviceChunkReadParameters;
-
-typedef struct
-{
-   const void *Data;
-   size_t Size;
-   intptr_t Offset;
-   const void *ChunkContext;
-   const void *CallContext;
-} VirtualMemorySDeviceChunkWriteParameters;
-
-typedef enum
-{
-   VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OK               = VIRTUAL_MEMORY_SDEVICE_STATUS_OK,
-   VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_OPERATION_FAIL   = VIRTUAL_MEMORY_SDEVICE_STATUS_CHUNK_OPERATION_FAIL,
-   VIRTUAL_MEMORY_SDEVICE_CHUNK_STATUS_WRONG_PARAMETERS = VIRTUAL_MEMORY_SDEVICE_STATUS_WRONG_CHUNK_PARAMETERS
-} VirtualMemorySDeviceChunkStatus;
-
-struct VirtualMemorySDeviceChunk
-{
-   VirtualMemorySDeviceChunkStatus (* Read)(SDEVICE_HANDLE(VirtualMemory) *handle,
-                                            const VirtualMemorySDeviceChunkReadParameters *parameters);
-   VirtualMemorySDeviceChunkStatus (* Write)(SDEVICE_HANDLE(VirtualMemory) *handle,
-                                             const VirtualMemorySDeviceChunkWriteParameters *parameters);
-   const void *Context;
-   size_t Size;
-};
-
-typedef struct
-{
-   uintptr_t Address;
-   size_t Size;
-   const void *Data;
-   const void *CallContext;
-} VirtualMemorySDeviceWriteParameters;
-
-typedef struct
-{
-   uintptr_t Address;
-   size_t Size;
-   void *Data;
-   const void *CallContext;
-} VirtualMemorySDeviceReadParameters;
-
-bool VirtualMemorySDeviceTryRead(SDEVICE_HANDLE(VirtualMemory) *handle,
-                                 const VirtualMemorySDeviceReadParameters *parameters);
-bool VirtualMemorySDeviceTryWrite(SDEVICE_HANDLE(VirtualMemory) *handle,
-                                  const VirtualMemorySDeviceWriteParameters *parameters);
+SDevicePropertyStatus VirtualMemorySDeviceInvokeOperation(
+      SDEVICE_HANDLE(VirtualMemory)                 *handle,
+      const VirtualMemorySDeviceOperationParameters *operationParameters,
+      const void                                    *callParameters);
