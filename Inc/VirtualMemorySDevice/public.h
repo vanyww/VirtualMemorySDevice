@@ -2,11 +2,6 @@
 
 #include "config.h"
 #include "dependencies.h"
-#include "log.h"
-
-/* 074C9AFA-6248-11EE-8C95-0492264B1031 */
-#define VIRTUAL_MEMORY_SDEVICE_UUID_HIGH 0x074C9AFA624811EE
-#define VIRTUAL_MEMORY_SDEVICE_UUID_LOW  0x8C950492264B1031
 
 #define VIRTUAL_MEMORY_SDEVICE_VERSION_MAJOR 2
 #define VIRTUAL_MEMORY_SDEVICE_VERSION_MINOR 0
@@ -93,9 +88,7 @@ SDEVICE_INIT_DATA_DECLARATION(VirtualMemory)
    size_t                           ChunksCount;
 };
 
-SDEVICE_IDENTITY_BLOCK_DECLARATION(VirtualMemory);
-
-SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, context);
+SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, context);
 SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer);
 
 SDevicePropertyStatus VirtualMemorySDeviceInvokeOperation(

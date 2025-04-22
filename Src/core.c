@@ -4,20 +4,6 @@
 
 #include "SDeviceCore/heap.h"
 
-SDEVICE_IDENTITY_BLOCK_DEFINITION(
-      VirtualMemory,
-      ((const SDeviceUuid)
-      {
-         .High = VIRTUAL_MEMORY_SDEVICE_UUID_HIGH,
-         .Low  = VIRTUAL_MEMORY_SDEVICE_UUID_LOW
-      }),
-      ((const SDeviceVersion)
-      {
-         .Major = VIRTUAL_MEMORY_SDEVICE_VERSION_MAJOR,
-         .Minor = VIRTUAL_MEMORY_SDEVICE_VERSION_MINOR,
-         .Patch = VIRTUAL_MEMORY_SDEVICE_VERSION_PATCH
-      }));
-
 const IO_OPERATION_POINTER(IoOperations[]) =
 {
    [VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_READ]  = IO_OPERATION(Get),
@@ -26,7 +12,7 @@ const IO_OPERATION_POINTER(IoOperations[]) =
 
 static_assert(LENGTHOF(IoOperations) == VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPES_COUNT);
 
-SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, context)
+SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, context)
 {
    SDeviceAssert(init);
 
@@ -43,15 +29,7 @@ SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, owner, identifier, contex
 
    ThisHandle *instance = SDeviceAllocateHandle(sizeof(*instance->Init), sizeof(*instance->Runtime));
 
-   instance->Header = (SDeviceHandleHeader)
-   {
-      .Context       = context,
-      .OwnerHandle   = owner,
-      .IdentityBlock = &SDEVICE_IDENTITY_BLOCK(VirtualMemory),
-      .LatestStatus  = VIRTUAL_MEMORY_SDEVICE_STATUS_OK,
-      .Identifier    = identifier
-   };
-
+   instance->Context = context;
    *instance->Init = *_init;
 
 #if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
@@ -88,7 +66,7 @@ SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer)
    ThisHandle **_handlePointer = handlePointer;
    ThisHandle *handle = *_handlePointer;
 
-   SDeviceAssert(IS_VALID_THIS_HANDLE(handle));
+   SDeviceAssert(handle);
 
 #if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
    SDeviceFreeMemory(handle->Runtime->AddressMap);
@@ -105,7 +83,7 @@ SDevicePropertyStatus VirtualMemorySDeviceInvokeOperation(
       const VirtualMemorySDeviceOperationParameters *operationParameters,
       const void                                    *callParameters)
 {
-   SDeviceAssert(IS_VALID_THIS_HANDLE(handle));
+   SDeviceAssert(handle);
 
    SDeviceAssert(operationParameters);
 
@@ -152,7 +130,6 @@ SDevicePropertyStatus VirtualMemorySDeviceInvokeOperation(
       }
       else
       {
-         SDeviceLogStatus(handle, VIRTUAL_MEMORY_SDEVICE_STATUS_WRONG_ADDRESS);
          status = SDEVICE_PROPERTY_STATUS_VALIDATION_ERROR;
       }
    }

@@ -1,6 +1,8 @@
 #include "Base/interface.h"
 #include "../search.h"
 
+#include "SDeviceCore/errors.h"
+
 #include <memory.h>
 
 IO_OPERATION_DECLARATION(Get, handle, chunk, operationParameters, callParameters)
@@ -12,9 +14,6 @@ IO_OPERATION_DECLARATION(Get, handle, chunk, operationParameters, callParameters
       SDevicePropertyStatus status = chunk->Get(handle, chunk, _operationParameters, callParameters);
 
       SDeviceAssert(SDEVICE_IS_VALID_PROPERTY_OPERATION_STATUS(status));
-
-      if(status != SDEVICE_PROPERTY_STATUS_OK)
-         LogChunkGetFailStatus(handle, FindChunkAddress(handle, chunk));
 
       return status;
    }
