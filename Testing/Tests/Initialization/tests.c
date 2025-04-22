@@ -1,32 +1,25 @@
-#include "../../Mock/VirtualMemorySDevice/application.h"
-#include "../../Mock/Errors/errors.h"
+#include "../../Mock/SDevice/virtual_memory.h"
 
 #include "unity_fixture.h"
-
 
 TEST_GROUP(Initialization);
 
 TEST_SETUP(Initialization)
 {
-   EraseChunksBuffers();
-   AssertionMustBeFail(false);
+   VirtualMemoryMockEraseChunksBuffers();
 }
 
 TEST_TEAR_DOWN(Initialization) {}
 
-TEST(Initialization, HandleInitialization)
+TEST(Initialization, VirtualMemory)
 {
-   SDEVICE_INIT_DATA(VirtualMemory) init =
-   {
-      .Chunks = GetCunks(),
-      .ChunksCount = CHUNKS_COUNT
-   };
+   _cleanup SDEVICE_HANDLE(VirtualMemory) *handle =
+         VirtualMemoryMockCreateInstance();
 
-   VIRTUAL_MEMORY_DISPOSE_HANDLE_CLEANUP_ATTRIBUTE SDEVICE_HANDLE(VirtualMemory) *handle =
-         SDEVICE_CREATE_HANDLE(VirtualMemory)(&init, NULL, 0, NULL);
+   TEST_ASSERT_NOT_NULL(handle);
 }
 
 TEST_GROUP_RUNNER(Initialization)
 {
-   RUN_TEST_CASE(Initialization, HandleInitialization)
+   RUN_TEST_CASE(Initialization, VirtualMemory)
 }
