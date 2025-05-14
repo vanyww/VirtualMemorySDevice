@@ -2,17 +2,6 @@
 
 #include <memory.h>
 
-SDEVICE_HANDLE(VirtualMemory) * VirtualMemoryMockCreateInstance(void)
-{
-   SDEVICE_INIT_DATA(VirtualMemory) init =
-   {
-      .Chunks = Chunks,
-      .ChunksCount = CHUNKS_COUNT
-   };
-
-   return SDEVICE_CREATE_HANDLE(VirtualMemory)(&init, NULL);
-}
-
 void VirtualMemoryMockEraseChunksBuffers(void)
 {
    memset(ChunksBuffers, 0, CHUNKS_COUNT*CHUNK_SIZE);
