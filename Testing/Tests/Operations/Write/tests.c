@@ -2,19 +2,30 @@
 
 #include "unity_fixture.h"
 
+static SDEVICE_HANDLE(VirtualMemory) *Handle;
+
 TEST_GROUP(Write);
 
 TEST_SETUP(Write)
 {
+   SDEVICE_INIT_DATA(VirtualMemory) init =
+   {
+      .Chunks      = Chunks,
+      .ChunksCount = CHUNKS_COUNT
+   };
+
+   Handle = SDEVICE_CREATE_HANDLE(VirtualMemory)(&init, NULL);
+
    VirtualMemoryMockEraseChunksBuffers();
 }
 
-TEST_TEAR_DOWN(Write) {}
+TEST_TEAR_DOWN(Write)
+{
+   SDEVICE_DISPOSE_HANDLE(VirtualMemory)(Handle);
+}
 
 TEST(Write, FirstChunk)
 {
-   _cleanup SDEVICE_HANDLE(VirtualMemory) *handle = VirtualMemoryMockCreateInstance();
-
    uint8_t expectedData[] = { 0x11 };
    uint8_t writeData[sizeof(expectedData)];
 
@@ -24,15 +35,13 @@ TEST(Write, FirstChunk)
       .AsWrite = { expectedData, 0, sizeof(expectedData) }
    };
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(Handle, &parameters, NULL));
    VirtualMemoryMockReadChunkBuffer(0, writeData, sizeof(writeData));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, writeData, sizeof(expectedData));
 }
 
 TEST(Write, LastChunk)
 {
-   _cleanup SDEVICE_HANDLE(VirtualMemory) *handle = VirtualMemoryMockCreateInstance();
-
    uint8_t expectedData[] = { 0x11 };
    uint8_t writeData[sizeof(expectedData)];
 
@@ -42,15 +51,13 @@ TEST(Write, LastChunk)
       .AsWrite = { expectedData, CHUNK_SIZE * (CHUNKS_COUNT - 1), sizeof(expectedData) }
    };
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(Handle, &parameters, NULL));
    VirtualMemoryMockReadChunkBuffer(CHUNKS_COUNT - 1, writeData, sizeof(writeData));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, writeData, sizeof(expectedData));
 }
 
 TEST(Write, MiddleChunk)
 {
-   _cleanup SDEVICE_HANDLE(VirtualMemory) *handle = VirtualMemoryMockCreateInstance();
-
    uint8_t expectedData[] = { 0x11 };
    uint8_t writeData[sizeof(expectedData)];
 
@@ -60,15 +67,13 @@ TEST(Write, MiddleChunk)
       .AsWrite = { expectedData, CHUNK_SIZE * (CHUNKS_COUNT / 2 - 1), sizeof(expectedData) }
    };
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(Handle, &parameters, NULL));
    VirtualMemoryMockReadChunkBuffer(CHUNKS_COUNT / 2 - 1, writeData, sizeof(writeData));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, writeData, sizeof(expectedData));
 }
 
 TEST(Write, AddressInsideChunk)
 {
-   _cleanup SDEVICE_HANDLE(VirtualMemory) *handle = VirtualMemoryMockCreateInstance();
-
    uint8_t expectedData[] = { [0 ... CHUNK_SIZE/2 - 1] = 0x00, [CHUNK_SIZE/2 ... CHUNK_SIZE - 1] = 0x11 };
    uint8_t chunkData[sizeof(expectedData)];
    uint8_t fillingData[] = { [0 ... CHUNK_SIZE/2 - 1] = 0x11 };
@@ -79,15 +84,13 @@ TEST(Write, AddressInsideChunk)
       .AsWrite = { fillingData, CHUNK_SIZE / 2, sizeof(expectedData) }
    };
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(Handle, &parameters, NULL));
    VirtualMemoryMockReadChunkBuffer(0, chunkData, sizeof(chunkData));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, chunkData, sizeof(expectedData));
 }
 
 TEST(Write, LargerThanOneChunkSize)
 {
-   _cleanup SDEVICE_HANDLE(VirtualMemory) *handle = VirtualMemoryMockCreateInstance();
-
    uint8_t expectedData[] = { [0 ... CHUNK_SIZE - 1] = 0x11, [CHUNK_SIZE ... 2*CHUNK_SIZE - 1] = 0x22 };
    uint8_t writeData[sizeof(expectedData)];
 
@@ -97,15 +100,13 @@ TEST(Write, LargerThanOneChunkSize)
       .AsWrite = { expectedData, 0, sizeof(expectedData) }
    };
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(Handle, &parameters, NULL));
    VirtualMemoryMockReadChunkBuffer(0, writeData, sizeof(writeData));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, writeData, sizeof(expectedData));
 }
 
 TEST(Write, LargerThanOneChunkSizeWithAddressInsideChunk)
 {
-   _cleanup SDEVICE_HANDLE(VirtualMemory) *handle = VirtualMemoryMockCreateInstance();
-
    uint8_t fillingData[] = { [0 ... CHUNK_SIZE/2 - 1] = 0x11, [CHUNK_SIZE/2 ... CHUNK_SIZE - 1] = 0x22 };
    uint8_t expectedData[] =
    {
@@ -122,15 +123,13 @@ TEST(Write, LargerThanOneChunkSizeWithAddressInsideChunk)
       .AsWrite = { fillingData, CHUNK_SIZE / 2, sizeof(fillingData) }
    };
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(Handle, &parameters, NULL));
    VirtualMemoryMockReadChunkBuffer(0, chunksData, sizeof(chunksData));
    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, chunksData, sizeof(expectedData));
 }
 
 TEST(Write, WrongAddress)
 {
-   _cleanup SDEVICE_HANDLE(VirtualMemory) *handle = VirtualMemoryMockCreateInstance();
-
    char *writeDataStub[1];
    size_t address = SIZE_MAX;
 
@@ -142,7 +141,7 @@ TEST(Write, WrongAddress)
 
    TEST_ASSERT_EQUAL(
          SDEVICE_PROPERTY_STATUS_VALIDATION_ERROR,
-         VirtualMemorySDeviceInvokeOperation(handle, &parameters, NULL));
+         VirtualMemorySDeviceInvokeOperation(Handle, &parameters, NULL));
 }
 
 TEST_GROUP_RUNNER(Write)
