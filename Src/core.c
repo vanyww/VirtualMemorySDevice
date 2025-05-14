@@ -59,23 +59,18 @@ SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, context)
    return instance;
 }
 
-SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer)
+SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handle)
 {
-   SDeviceAssert(handlePointer);
+   ThisHandle *_handle = handle;
 
-   ThisHandle **_handlePointer = handlePointer;
-   ThisHandle *handle = *_handlePointer;
-
-   SDeviceAssert(handle);
+   SDeviceAssert(_handle);
 
 #if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
-   SDeviceFreeMemory(handle->Runtime->AddressMap);
-   handle->Runtime->AddressMap = NULL;
+   SDeviceFreeMemory(_handle->Runtime->AddressMap);
+   _handle->Runtime->AddressMap = NULL;
 #endif
 
-   SDeviceFreeHandle(handle);
-
-   *_handlePointer = NULL;
+   SDeviceFreeHandle(_handle);
 }
 
 SDevicePropertyStatus VirtualMemorySDeviceInvokeOperation(

@@ -1,7 +1,7 @@
 #include "Base/interface.h"
 #include "../search.h"
 
-#include "SDeviceCore/errors.h"
+#include "SDeviceCore/assert.h"
 
 IO_OPERATION_DECLARATION(Set, handle, chunk, operationParameters, callParameters)
 {
@@ -11,7 +11,7 @@ IO_OPERATION_DECLARATION(Set, handle, chunk, operationParameters, callParameters
 
       SDevicePropertyStatus status = chunk->Set(handle, chunk, _operationParameters, callParameters);
 
-      SDeviceAssert(SDEVICE_IS_VALID_PROPERTY_OPERATION_STATUS(status));
+      SDeviceAssert(SDEVICE_IS_VALID_PROPERTY_STATUS(status));
 
       return status;
    }

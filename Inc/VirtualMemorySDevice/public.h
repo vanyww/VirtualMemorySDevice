@@ -89,7 +89,7 @@ SDEVICE_INIT_DATA_DECLARATION(VirtualMemory)
 };
 
 SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, context);
-SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handlePointer);
+SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handle);
 
 SDevicePropertyStatus VirtualMemorySDeviceInvokeOperation(
       SDEVICE_HANDLE(VirtualMemory)                 *handle,
