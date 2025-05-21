@@ -31,14 +31,14 @@ TEST(Read, FirstChunk)
 
    const VirtualMemorySDeviceOperationParameters parameters =
    {
-      .Type   = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_READ,
-      .AsRead = { readData, 0, sizeof(readData) }
+      .TypeIdx   = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_IDX_READ,
+      .Interface.AsRead = { readData, 0, sizeof(readData) }
    };
 
    VirtualMemoryMockWriteChunkBuffer(0, expectedData, sizeof(expectedData));
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(Handle, &parameters, NULL));
-   TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.AsRead.Data, sizeof(readData));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceAccess(Handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.Interface.AsRead.Data, sizeof(readData));
 }
 
 TEST(Read, LastChunk)
@@ -48,14 +48,14 @@ TEST(Read, LastChunk)
 
    const VirtualMemorySDeviceOperationParameters parameters =
    {
-      .Type   = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_READ,
-      .AsRead = { readData, CHUNK_SIZE * (CHUNKS_COUNT - 1), sizeof(readData) }
+      .TypeIdx   = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_IDX_READ,
+      .Interface.AsRead = { readData, CHUNK_SIZE * (CHUNKS_COUNT - 1), sizeof(readData) }
    };
 
    VirtualMemoryMockWriteChunkBuffer(CHUNKS_COUNT - 1, expectedData, sizeof(expectedData));
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(Handle, &parameters, NULL));
-   TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.AsRead.Data, sizeof(readData));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceAccess(Handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.Interface.AsRead.Data, sizeof(readData));
 }
 
 TEST(Read, MiddleChunk)
@@ -65,14 +65,14 @@ TEST(Read, MiddleChunk)
 
    const VirtualMemorySDeviceOperationParameters parameters =
    {
-      .Type   = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_READ,
-      .AsRead = { readData, CHUNK_SIZE * (CHUNKS_COUNT / 2 - 1), sizeof(readData) }
+      .TypeIdx   = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_IDX_READ,
+      .Interface.AsRead = { readData, CHUNK_SIZE * (CHUNKS_COUNT / 2 - 1), sizeof(readData) }
    };
 
    VirtualMemoryMockWriteChunkBuffer(CHUNKS_COUNT/2 - 1, expectedData, sizeof(expectedData));
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(Handle, &parameters, NULL));
-   TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.AsRead.Data, sizeof(readData));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceAccess(Handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.Interface.AsRead.Data, sizeof(readData));
 }
 
 TEST(Read, AddressInsideChunk)
@@ -83,14 +83,14 @@ TEST(Read, AddressInsideChunk)
 
    const VirtualMemorySDeviceOperationParameters parameters =
    {
-      .Type   = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_READ,
-      .AsRead = { readData, CHUNK_SIZE / 2, sizeof(readData) }
+      .TypeIdx   = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_IDX_READ,
+      .Interface.AsRead = { readData, CHUNK_SIZE / 2, sizeof(readData) }
    };
 
    VirtualMemoryMockWriteChunkBuffer(0, fillingData, sizeof(fillingData));
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(Handle, &parameters, NULL));
-   TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.AsRead.Data, sizeof(readData));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceAccess(Handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.Interface.AsRead.Data, sizeof(readData));
 }
 
 TEST(Read, LargerThanOneChunkSize)
@@ -104,14 +104,14 @@ TEST(Read, LargerThanOneChunkSize)
 
    const VirtualMemorySDeviceOperationParameters parameters =
    {
-      .Type   = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_READ,
-      .AsRead = { readData, 0, sizeof(readData) }
+      .TypeIdx   = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_IDX_READ,
+      .Interface.AsRead = { readData, 0, sizeof(readData) }
    };
 
    VirtualMemoryMockWriteChunkBuffer(0, expectedData, sizeof(expectedData));
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(Handle, &parameters, NULL));
-   TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.AsRead.Data, sizeof(readData));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceAccess(Handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.Interface.AsRead.Data, sizeof(readData));
 }
 
 TEST(Read, LargerThanOneChunkSizeWithAddressInsideChunk)
@@ -123,21 +123,21 @@ TEST(Read, LargerThanOneChunkSizeWithAddressInsideChunk)
    };
    uint8_t expectedData[] =
    {
-         [0 ... CHUNK_SIZE / 2 - 1] = 0x11,
-         [CHUNK_SIZE / 2 ... CHUNK_SIZE - 1] = 0x22
+      [0 ... CHUNK_SIZE / 2 - 1] = 0x11,
+      [CHUNK_SIZE / 2 ... CHUNK_SIZE - 1] = 0x22
    };
    uint8_t readData[sizeof(expectedData)];
 
    const VirtualMemorySDeviceOperationParameters parameters =
    {
-      .Type   = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_READ,
-      .AsRead = { readData, CHUNK_SIZE / 2, sizeof(readData) }
+      .TypeIdx   = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_IDX_READ,
+      .Interface.AsRead = { readData, CHUNK_SIZE / 2, sizeof(readData) }
    };
 
    VirtualMemoryMockWriteChunkBuffer(0, fillingData, sizeof(fillingData));\
 
-   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceInvokeOperation(Handle, &parameters, NULL));
-   TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.AsRead.Data, sizeof(readData));
+   TEST_ASSERT_EQUAL(SDEVICE_PROPERTY_STATUS_OK, VirtualMemorySDeviceAccess(Handle, &parameters, NULL));
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedData, parameters.Interface.AsRead.Data, sizeof(readData));
 }
 
 TEST(Read, WrongAddress)
@@ -147,13 +147,13 @@ TEST(Read, WrongAddress)
 
    const VirtualMemorySDeviceOperationParameters parameters =
    {
-      .Type   = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_READ,
-      .AsRead = { readDataStub, address, sizeof(readDataStub) }
+      .TypeIdx   = VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_IDX_READ,
+      .Interface.AsRead = { readDataStub, address, sizeof(readDataStub) }
    };
 
    TEST_ASSERT_EQUAL(
          SDEVICE_PROPERTY_STATUS_VALIDATION_ERROR,
-         VirtualMemorySDeviceInvokeOperation(Handle, &parameters, NULL));
+         VirtualMemorySDeviceAccess(Handle, &parameters, NULL));
 }
 
 TEST_GROUP_RUNNER(Read)
