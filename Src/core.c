@@ -1,25 +1,80 @@
 #include "private.h"
-#include "Io/Chunks/get.h"
-#include "Io/Chunks/set.h"
+#include "Maps/chunk_operation_map.h"
 
 #include "SDeviceCore/heap.h"
+#include "SDeviceCore/assert.h"
 
-const IO_OPERATION_POINTER(IoOperations[]) =
+typedef struct
 {
-   [VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_READ]  = IO_OPERATION(Get),
-   [VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPE_WRITE] = IO_OPERATION(Set)
-};
+   const VirtualMemorySDeviceChunk *Chunk;
+   size_t                           Offset;
+} MemoryReference;
 
-static_assert(LENGTHOF(IoOperations) == VIRTUAL_MEMORY_SDEVICE_OPERATION_TYPES_COUNT);
+__attribute__((always_inline))
+static inline uintptr_t GetHighestAddress(ThisHandle *this)
+#if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
+{
+   size_t lastIdx = this->Init->ChunksCount - 1;
+
+   return this->Runtime->AddressTable[lastIdx] + (this->Init->Chunks[lastIdx].Size - 1);
+}
+#else
+{
+   return this->Runtime->HighestAddress;
+}
+#endif
+
+static inline MemoryReference FindMemoryReference(ThisHandle *handle, uintptr_t address)
+#if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
+{
+   size_t leftIdx = 0, rightIdx = handle->Init->ChunksCount - 1;
+
+   for(;;)
+   {
+      size_t idx = leftIdx + (rightIdx - leftIdx) / 2;
+      uintptr_t chunkAddress = handle->Runtime->AddressTable[idx];
+      const VirtualMemorySDeviceChunk *chunk = &handle->Init->Chunks[idx];
+
+      if(address < chunkAddress)
+      {
+         rightIdx = idx - 1;
+      }
+      else if(address > chunkAddress + (chunk->Size - 1))
+      {
+         leftIdx = idx + 1;
+      }
+      else
+      {
+         return (MemoryReference)
+         {
+            .Chunk  = chunk,
+            .Offset = address - chunkAddress
+         };
+      }
+   }
+}
+#else
+{
+   const VirtualMemorySDeviceChunk *chunk = handle->Init->Chunks;
+   uintptr_t lastAddress = chunk->Size - 1;
+
+   while(address > lastAddress)
+      lastAddress += (++chunk)->Size;
+
+   return (MemoryReference)
+   {
+      .Chunk  = chunk,
+      .Offset = chunk->Size - ((lastAddress - address) + 1)
+   };
+}
+#endif
 
 SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, context)
 {
-   SDeviceAssert(init);
-
    const ThisInitData *_init = init;
 
+   SDeviceAssert(_init);
    SDeviceAssert(_init->Chunks);
-
    SDeviceAssert(_init->ChunksCount > 0);
 
 #if SDEVICE_USE_ASSERT
@@ -27,110 +82,113 @@ SDEVICE_CREATE_HANDLE_DECLARATION(VirtualMemory, init, context)
       SDeviceAssert(_init->Chunks[i].Size > 0);
 #endif
 
-   ThisHandle *instance = SDeviceAllocateHandle(sizeof(*instance->Init), sizeof(*instance->Runtime));
+   ThisHandle *instance =
+         SDeviceAllocateHandle(
+               sizeof(*instance->Init),
+               sizeof(*instance->Runtime));
 
-   instance->Context = context;
    *instance->Init = *_init;
 
-#if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
-   ThisAddressType *addressMap = SDeviceAllocateMemory(sizeof(ThisAddressType[_init->ChunksCount]));
+   instance->Context = context;
 
-   addressMap[0] = 0;
+#if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
+   uintptr_t *addressTable =
+         SDeviceAllocateMemory(
+               sizeof(uintptr_t[_init->ChunksCount]));
+
+   addressTable[0] = 0;
 
    for(size_t i = 0; i < _init->ChunksCount - 1; i++)
-      SDeviceEvalAssert(TRY_ADD_INT_CHECKED(addressMap[i], _init->Chunks[i].Size, &addressMap[i + 1]),);
-
-   *instance->Runtime = (ThisRuntimeData)
    {
-      .AddressMap = addressMap
-   };
+      SDeviceEvalAssert(
+            TRY_ADD_INT_CHECKED(
+                  addressTable[i],
+                  _init->Chunks[i].Size,
+                  &addressTable[i + 1]),);
+   }
+
+   instance->Runtime->AddressTable = addressTable;
 #else
-   ThisAddressType address = _init->Chunks[0].Size - 1;
+   uintptr_t address = _init->Chunks[0].Size - 1;
 
    for(size_t i = 1; i < _init->ChunksCount; i++)
-      SDeviceEvalAssert(TRY_ADD_INT_CHECKED(address, _init->Chunks[i].Size, &address),);
-
-   *instance->Runtime = (ThisRuntimeData)
    {
-      .HighestAddress = address
-   };
+      SDeviceEvalAssert(
+            TRY_ADD_INT_CHECKED(
+                  address,
+                  _init->Chunks[i].Size,
+                  &address),);
+   }
+
+   instance->Runtime->HighestAddress = address;
 #endif
 
    return instance;
 }
 
-SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, handle)
+SDEVICE_DISPOSE_HANDLE_DECLARATION(VirtualMemory, this)
 {
-   ThisHandle *_handle = handle;
+   ThisHandle *_this = this;
 
-   SDeviceAssert(_handle);
+   SDeviceAssert(_this);
 
 #if VIRTUAL_MEMORY_SDEVICE_USE_BINARY_SEARCH
-   SDeviceFreeMemory(_handle->Runtime->AddressMap);
-   _handle->Runtime->AddressMap = NULL;
+   SDeviceFreeMemory(_this->Runtime->AddressTable);
 #endif
 
-   SDeviceFreeHandle(_handle);
+   SDeviceFreeHandle(_this);
 }
 
-SDevicePropertyStatus VirtualMemorySDeviceInvokeOperation(
-      ThisHandle                                    *handle,
+SDevicePropertyStatus VirtualMemorySDeviceAccess(
+      ThisHandle                                    *this,
       const VirtualMemorySDeviceOperationParameters *operationParameters,
       const void                                    *callParameters)
 {
-   SDeviceAssert(handle);
-
+   SDeviceAssert(this);
    SDeviceAssert(operationParameters);
+   SDeviceAssert(
+         operationParameters->Interface.AsAny.Data ||
+         operationParameters->Interface.AsAny.Size <= 0);
 
-   SDeviceAssert(operationParameters->AsAny.Data || operationParameters->AsAny.Size <= 0);
+   size_t size = operationParameters->Interface.AsAny.Size;
 
-   SDevicePropertyStatus status;
-   ThisSizeType size = operationParameters->AsAny.Size;
-   IO_OPERATION_POINTER(operation) = IoOperations[operationParameters->Type];
+   if(size <= 0)
+      return SDEVICE_PROPERTY_STATUS_OK;
 
-   if(size > 0)
+   uintptr_t lastAddress, firstAddress = operationParameters->Interface.AsAny.Address;
+
+   if(!TRY_ADD_INT_CHECKED(firstAddress, size - 1, &lastAddress) || lastAddress > GetHighestAddress(this))
+      return SDEVICE_PROPERTY_STATUS_VALIDATION_ERROR;
+
+   MemoryReference memoryReference = FindMemoryReference(this, firstAddress);
+   ChunkOperationParameters chunkParameters =
    {
-      ThisAddressType lastAddress, firstAddress = operationParameters->AsAny.Address;
-
-      if(TRY_ADD_INT_CHECKED(firstAddress, size - 1, &lastAddress) && lastAddress <= GET_HIGHEST_ADDRESS(handle))
+      .AsAny =
       {
-         MemoryReference memoryReference = FindMemoryReference(handle, firstAddress);
-         ChunkOperationParameters chunkParameters =
-         {
-            .AsAny =
-            {
-               .Data   = operationParameters->AsAny.Data,
-               .Offset = memoryReference.Offset,
-               .Size   = MIN(memoryReference.Chunk->Size - memoryReference.Offset, size)
-            }
-         };
-
-         status = operation(handle, memoryReference.Chunk, &chunkParameters, callParameters);
-
-         if(status == SDEVICE_PROPERTY_STATUS_OK && size > chunkParameters.AsAny.Size)
-         {
-            chunkParameters.AsAny.Offset = 0;
-
-            do
-            {
-               memoryReference.Chunk++;
-               size -= chunkParameters.AsAny.Size;
-               chunkParameters.AsAny.Data += chunkParameters.AsAny.Size;
-               chunkParameters.AsAny.Size = MIN(memoryReference.Chunk->Size, size);
-
-               status = operation(handle, memoryReference.Chunk, &chunkParameters, callParameters);
-            }
-            while(status == SDEVICE_PROPERTY_STATUS_OK && size > chunkParameters.AsAny.Size);
-         }
+         .Data   = operationParameters->Interface.AsAny.Data,
+         .Offset = memoryReference.Offset,
+         .Size   = MIN(memoryReference.Chunk->Size - memoryReference.Offset, size)
       }
-      else
-      {
-         status = SDEVICE_PROPERTY_STATUS_VALIDATION_ERROR;
-      }
-   }
-   else
+   };
+
+   CHUNK_OPERATION_POINTER(operation) = ChunkOperationMap[operationParameters->TypeIdx];
+   SDevicePropertyStatus status =
+         operation(this, memoryReference.Chunk, &chunkParameters, callParameters);
+
+   if(status == SDEVICE_PROPERTY_STATUS_OK && size > chunkParameters.AsAny.Size)
    {
-      status = SDEVICE_PROPERTY_STATUS_OK;
+      chunkParameters.AsAny.Offset = 0;
+
+      do
+      {
+         memoryReference.Chunk++;
+         size -= chunkParameters.AsAny.Size;
+         chunkParameters.AsAny.Data += chunkParameters.AsAny.Size;
+         chunkParameters.AsAny.Size = MIN(memoryReference.Chunk->Size, size);
+
+         status = operation(this, memoryReference.Chunk, &chunkParameters, callParameters);
+      }
+      while(status == SDEVICE_PROPERTY_STATUS_OK && size > chunkParameters.AsAny.Size);
    }
 
    return status;
